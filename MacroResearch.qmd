@@ -183,8 +183,9 @@ summary(vecm_Y)
 vecm_Y = ca.jo(Y, type = "trace", ecdet = "cons", K = 5, spec = "transitory")
 summary(vecm_Y) 
 ```
-```
-execute:
-  echo: true
-```
-## References {.unnumbered}
+
+
+
+
+
+
