@@ -163,7 +163,7 @@ ul.task-list li input[type="checkbox"] {
     Augmented Dickey-Fuller Test
 
 data:  Y[, i]
-Dickey-Fuller = -1.6732, Lag order = 7, p-value = 0.7153
+Dickey-Fuller = -2.1418, Lag order = 7, p-value = 0.5173
 alternative hypothesis: stationary
 
 
@@ -172,7 +172,7 @@ alternative hypothesis: stationary
     Augmented Dickey-Fuller Test
 
 data:  Y[, i]
-Dickey-Fuller = -1.9555, Lag order = 7, p-value = 0.596
+Dickey-Fuller = -1.767, Lag order = 7, p-value = 0.6755
 alternative hypothesis: stationary
 
 
@@ -181,7 +181,7 @@ alternative hypothesis: stationary
     Augmented Dickey-Fuller Test
 
 data:  Y[, i]
-Dickey-Fuller = -1.89, Lag order = 7, p-value = 0.6237
+Dickey-Fuller = -2.0203, Lag order = 7, p-value = 0.5686
 alternative hypothesis: stationary
 
 
@@ -190,7 +190,7 @@ alternative hypothesis: stationary
     Augmented Dickey-Fuller Test
 
 data:  Y[, i]
-Dickey-Fuller = -3.1158, Lag order = 7, p-value = 0.106
+Dickey-Fuller = -2.9896, Lag order = 7, p-value = 0.1593
 alternative hypothesis: stationary
 
 
@@ -199,7 +199,7 @@ alternative hypothesis: stationary
     Augmented Dickey-Fuller Test
 
 data:  Y[, i]
-Dickey-Fuller = -3.5443, Lag order = 7, p-value = 0.03845
+Dickey-Fuller = -3.4095, Lag order = 7, p-value = 0.05256
 alternative hypothesis: stationary</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
@@ -211,51 +211,51 @@ alternative hypothesis: stationary</code></pre>
 Test type: trace statistic , with linear trend in cointegration 
 
 Eigenvalues (lambda):
-[1] 1.610243e-01 6.168265e-02 2.977909e-02 1.436864e-02 1.066604e-02
-[6] 2.284876e-17
+[1]  1.514038e-01  6.262170e-02  3.472780e-02  1.361718e-02  7.595668e-03
+[6] -1.251344e-17
 
 Values of teststatistic and critical values of test:
 
            test 10pct  5pct  1pct
-r &lt;= 4 |   4.19 10.49 12.25 16.26
-r &lt;= 3 |   9.85 22.76 25.32 30.45
-r &lt;= 2 |  21.67 39.06 42.44 48.45
-r &lt;= 1 |  46.57 59.14 62.99 70.05
-r = 0  | 115.22 83.20 87.31 96.58
+r &lt;= 4 |   2.90 10.49 12.25 16.26
+r &lt;= 3 |   8.13 22.76 25.32 30.45
+r &lt;= 2 |  21.60 39.06 42.44 48.45
+r &lt;= 1 |  46.23 59.14 62.99 70.05
+r = 0  | 108.78 83.20 87.31 96.58
 
 Eigenvectors, normalised to first column:
 (These are the cointegration relations)
 
               indu.l1        cpi.l1       exp.l1      lend.l1       fci.l1
-indu.l1   1.000000000  1.000000e+00   1.00000000  1.000000000  1.000000000
-cpi.l1   -4.159057427 -1.729480e+00 -18.51178811 -2.629703572 -5.321515985
-exp.l1   -0.009304497 -9.440160e-03  -0.01704519 -0.003370101 -0.001367231
-lend.l1   0.407742179  4.653273e-01  -2.35400643 -0.589823010  0.118357495
-fci.l1    0.074304510 -2.202625e-01   0.23878636  0.069019682 -0.031003537
-trend.l1  0.004921226  2.451006e-05   0.04209557  0.006390396  0.008709711
+indu.l1   1.000000000  1.0000000000   1.00000000  1.000000000  1.000000000
+cpi.l1   -4.153260357 -1.6483175099 -29.50537589 -3.372435787 -9.748644178
+exp.l1   -0.010335412 -0.0097374211  -0.03269431 -0.005271992 -0.002930992
+lend.l1   0.530125663  0.5276696545  -2.68662952 -0.697604883  0.386117247
+fci.l1    0.073743351 -0.2428611089   0.46931190  0.049317794 -0.077012594
+trend.l1  0.004400499 -0.0003935797   0.06231205  0.008329810  0.016549668
              trend.l1
 indu.l1   1.000000000
-cpi.l1   -2.969963277
-exp.l1   -0.001439165
-lend.l1  -0.238248979
-fci.l1    0.067825146
-trend.l1  0.004824049
+cpi.l1   -3.762818206
+exp.l1   -0.002960382
+lend.l1  -0.159795283
+fci.l1    0.053506918
+trend.l1  0.006247359
 
 Weights W:
 (This is the loading matrix)
 
-           indu.l1      cpi.l1        exp.l1       lend.l1       fci.l1
-indu.d -0.02382788  0.01541714  0.0022390667 -0.0089835440 -0.001788049
-cpi.d   0.00231478  0.00133819  0.0005123256 -0.0002665408  0.001976449
-exp.d   5.51350431 10.00188705  0.7901090033  2.1168441096 -2.215764592
-lend.d -0.01856675 -0.01128419 -0.0004812564  0.0103165994  0.002376309
-fci.d  -0.17340454  0.15221013 -0.0368857313  0.0056515900  0.026281816
+            indu.l1       cpi.l1        exp.l1       lend.l1        fci.l1
+indu.d -0.019774785  0.015211695  0.0023369134 -0.0058951587 -6.603141e-05
+cpi.d   0.001428811  0.001927206  0.0001314813  0.0004873416  8.235022e-04
+exp.d   5.469095982  7.859189930  0.6524537706  1.9400163614 -8.063855e-01
+lend.d -0.018542231 -0.011310028 -0.0013185109  0.0076936889  2.923947e-04
+fci.d  -0.152042448  0.152759412 -0.0267459082 -0.0111145382 -6.214929e-04
             trend.l1
-indu.d  3.544076e-15
-cpi.d   2.850350e-15
-exp.d  -2.922204e-11
-lend.d  1.626140e-13
-fci.d  -1.397789e-12</code></pre>
+indu.d -1.998761e-13
+cpi.d   1.244456e-13
+exp.d   3.311958e-10
+lend.d -1.014014e-12
+fci.d  -3.809901e-13</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -266,51 +266,51 @@ fci.d  -1.397789e-12</code></pre>
 Test type: trace statistic , without linear trend and constant in cointegration 
 
 Eigenvalues (lambda):
-[1]  1.631316e-01  8.680650e-02  6.147442e-02  1.804141e-02  1.239761e-02
-[6] -5.480756e-19
+[1]  1.609482e-01  8.831373e-02  6.228043e-02  2.360043e-02  9.944258e-03
+[6] -8.683262e-17
 
 Values of teststatistic and critical values of test:
 
            test 10pct  5pct  1pct
-r &lt;= 4 |   4.88  7.52  9.24 12.97
-r &lt;= 3 |  12.00 17.85 19.96 24.60
-r &lt;= 2 |  36.80 32.00 34.91 41.07
-r &lt;= 1 |  72.31 49.65 53.12 60.16
-r = 0  | 141.94 71.86 76.07 84.45
+r &lt;= 4 |   3.81  7.52  9.24 12.97
+r &lt;= 3 |  12.91 17.85 19.96 24.60
+r &lt;= 2 |  37.41 32.00 34.91 41.07
+r &lt;= 1 |  72.63 49.65 53.12 60.16
+r = 0  | 139.49 71.86 76.07 84.45
 
 Eigenvectors, normalised to first column:
 (These are the cointegration relations)
 
-             indu.l1       cpi.l1       exp.l1       lend.l1     fci.l1
-indu.l1   1.00000000  1.000000000  1.000000000  1.0000000000   1.000000
-cpi.l1   -3.14917776 -1.988262325 -1.724895731 -0.3308288332 -54.233897
-exp.l1   -0.01361396 -0.007377091 -0.009657518  0.0006618761   0.100944
-lend.l1   1.16709594  0.618086663  0.467707911 -0.0029584599  26.232987
-fci.l1    0.09212605  0.004589624 -0.231575645 -0.0098575202  -3.578743
-constant  5.21001359  2.089819194  2.088795262 -2.7543024766  86.234409
+             indu.l1       cpi.l1       exp.l1       lend.l1       fci.l1
+indu.l1   1.00000000  1.000000000  1.000000000  1.0000000000   1.00000000
+cpi.l1   -3.07167358 -2.188434433 -1.790832793 -0.2445345876   9.32969452
+exp.l1   -0.01391492 -0.008010747 -0.009928071  0.0006421323  -0.02256073
+lend.l1   1.14997247  0.689184439  0.495306253 -0.0193598799  -4.88279848
+fci.l1    0.08093797 -0.006573619 -0.249125792 -0.0393860176   0.51465084
+constant  4.94750611  2.703423171  2.262185787 -3.1114666453 -17.08353581
               constant
-indu.l1   1.0000000000
-cpi.l1   -0.8792384402
-exp.l1    0.0009305854
-lend.l1  -0.1190896690
-fci.l1    0.0752623282
-constant  0.9655155550
+indu.l1   1.000000e+00
+cpi.l1   -1.082580e+00
+exp.l1    2.451296e-06
+lend.l1   9.765727e-03
+fci.l1    6.056023e-02
+constant  1.211270e+00
 
 Weights W:
 (This is the loading matrix)
 
             indu.l1       cpi.l1       exp.l1       lend.l1        fci.l1
-indu.d -0.010791180 -0.002691175  0.015047746 -0.0093697313  4.929293e-05
-cpi.d   0.002109824 -0.003202154  0.001874679  0.0003936099  3.822587e-05
-exp.d   2.581695338 -0.427813022  9.752181402 -0.8974934733 -7.470679e-02
-lend.d -0.006062299 -0.008153487 -0.009725601  0.0087943066 -6.258207e-05
-fci.d  -0.101704154  0.089075753  0.126996123  0.0641116974  7.707765e-04
+indu.d -0.010781952 -0.001772534  0.015191144 -0.0107776994 -0.0002672343
+cpi.d   0.002079374 -0.003209452  0.002577668  0.0006400577 -0.0001641743
+exp.d   2.872002505 -0.296784648  7.922028041 -1.6270853073  0.3458490025
+lend.d -0.005947058 -0.009423762 -0.009542620  0.0096530996  0.0003475856
+fci.d  -0.104172319  0.093066807  0.122656733  0.0811260253 -0.0017482517
             constant
-indu.d  2.438488e-15
-cpi.d  -2.648993e-16
-exp.d  -2.900449e-12
-lend.d  4.711615e-15
-fci.d  -4.901346e-14</code></pre>
+indu.d  3.942284e-15
+cpi.d  -1.191922e-15
+exp.d  -9.436848e-12
+lend.d  1.220231e-14
+fci.d  -2.522432e-13</code></pre>
 </div>
 </div>
 <pre><code>execute:

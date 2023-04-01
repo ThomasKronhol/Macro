@@ -18,8 +18,8 @@ library(tinytex)
 #Setting up API key from FRED
 fredr_set_key("54706a95d44824ac499f1012d9b3a401")
 
-start_date <- as.Date("1990-01-01")
-end_date <- as.Date("2022-12-01")
+start_date <- as.Date("1991-01-01")
+end_date <- as.Date("2023-02-01")
 
 # Define a vector of series IDs
 #timeseries <- c("INDPRO", "CPIAUCSL", "UMCSENT", "TOTCI", "USSTHPI", "NFCI") incl. house prices
