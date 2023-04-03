@@ -18,7 +18,7 @@ library(tinytex)
 #Setting up API key from FRED
 fredr_set_key("54706a95d44824ac499f1012d9b3a401")
 
-start_date <- as.Date("1991-01-01")
+start_date <- as.Date("1980-01-01")
 end_date <- as.Date("2023-02-01")
 
 # Define a vector of series IDs
@@ -103,16 +103,43 @@ fincon = ggplot(data = Y[,5], aes(x = index(Y[,5]), y = Y[,5])) +
 #grid.arrange(ip, inf, ex, le, hou, fincon, nrow = 3, ncol = 2)
 grid.arrange(ip, inf, ex, le, fincon, nrow = 3, ncol = 2)
 
-#Doing an ACF test :::::::: change to 6 if HP incl.
+
+# Plotting Autocorrelation functions
+par(mfrow=c(2,3))
+a_ip = acf(Y[,1], lag.max = 20, main = "ACF Plot, Industrial production", ylab = "Autocorrelation", type = "correlation")
+a_cpi = acf(Y[,2], lag.max = 20, main = "ACF Plot, Consumer price index", ylab = "Autocorrelation", type = "correlation")
+a_exp = acf(Y[,3], lag.max = 20, main = "ACF Plot, Consumer expectations", ylab = "Autocorrelation", type = "correlation")
+a_le = acf(Y[,4], lag.max = 20, main = "ACF Plot, Lending", ylab = "Autocorrelation", type = "correlation")
+a_fci = acf(Y[,5], lag.max = 20, main = "ACF Plot, NFCI", ylab = "Autocorrelation", type = "correlation")
+
+
+#Doing an ADF test :::::::: change to 6 if HP incl.
+max_lag = 12
 adf_ <- list()
 for (i in 1:5) {
-  adf_result = adf.test(Y[,i])
+  adf_result = adf.test(Y[,i], k = max_lag)
   adf_[[i]] <- adf_result
 }
 head(adf_)
 
+adf_table <- data.frame(Test_Statistic = numeric(length(adf_)), 
+                        p_value = numeric(length(adf_)), 
+                        Lags_Used = numeric(length(adf_)))
+
+# Fill in the data frame with the test results
+for (i in 1:length(adf_)) {
+  adf_table[i, "Test_Statistic"] = round(adf_[[i]]$statistic,3)
+  adf_table[i, "p_value"] = round(adf_[[i]]$p.value,3)
+  adf_table[i, "Lags_Used"] = round(adf_[[i]]$parameter,3)
+}
+
+# Print the data frame
+rownames(adf_table)<- c("Industrial Production", "Consumer Price Index", "Consumer Expectation", "Lending","NFCI")
+colnames(adf_table)<- c("Test statistic", "P-value", "Lags")
+print(adf_table)
+
 # Testing for cointegration rank
-vecm_Y = ca.jo(Y, type = "trace", ecdet = "const", K = 2, spec = "transitory")
+vecm_Y = ca.jo(Y, type = "trace", ecdet = "const", K = 12, spec = "transitory")
 summary(vecm_Y) 
 
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

@@ -60,6 +60,7 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -89,6 +90,7 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#research-question-motivation" id="toc-research-question-motivation" class="nav-link active" data-scroll-target="#research-question-motivation">Research question &amp; Motivation</a></li>
   <li><a href="#data-and-its-properties" id="toc-data-and-its-properties" class="nav-link" data-scroll-target="#data-and-its-properties">Data and its properties</a></li>
+  <li><a href="#econometric-model-and-hypothesis" id="toc-econometric-model-and-hypothesis" class="nav-link" data-scroll-target="#econometric-model-and-hypothesis">Econometric model and hypothesis</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 </nav>
@@ -132,7 +134,7 @@ ul.task-list li input[type="checkbox"] {
 <p>The objective question to be answered can thus be summarized as follows; Does a tightening of financial conditions have the anticipated effects on the real economy, and if so, what are the magnitudes reasonable.</p>
 <p><strong>What motivates this?</strong></p>
 <p>It is or rather has been a standard part of macroeconomic modelling to exclude the financial sector from applied theoretical modelling. This has been a popular choice of researchers, who has argued that there is no or at least negligible relationship between financial and real variables. Nevertheless, financial crisis are often followed by significant drops in consumption and production, which might be a result of lower consumer sentiment, affecting the overall demand for goods as well as savings. It is therefore of importance for various policy makers to apply these insight when forming the economic policy as tighter monetary and/or macroprudential stances might have some undesired outcomes.</p>
-<p>Furthermore, the research question is highly applicable in today’s economic climate as central banks has started raising rates world wide, the financial condition index enables us to get a complete view of the affects that this might have by looking at financial markets, credit and liquidity while including the shadow banking system.</p>
+<p>Furthermore, the research question is highly applicable in today’s economic climate as central banks has started raising rates world wide, the financial condition index enables us to get a complete view of the affects that this might have by looking at financial markets, credit and liquidity while including the shadow banking system. The analysis is somewhat inspired by Pedersen and Roager (2019), who finds that easing financial conditions had a positive impact on the danish economy using quarterly data. In this paper monthly data is used in order to estimate the model on a higher frequency enabling policy makers to gain insights of the current state of the economy.</p>
 </section>
 <section id="data-and-its-properties" class="level2">
 <h2 class="anchored" data-anchor-id="data-and-its-properties">Data and its properties</h2>
@@ -143,181 +145,57 @@ ul.task-list li input[type="checkbox"] {
 <p>In order to directly link the movements in the financial condition index and the real economy total <strong>lending</strong> from commercial banks is applied.</p>
 <p>As aforementioned, one could hypothesize that the effect which financial conditions has on the real economy was through consumer expectations. Therefore, the model includes <strong>consumer sentiment</strong> provided by University of Michigan.</p>
 <p>Lastly, as we are interested in identifying a shock to financial conditions, the <strong>National Financial Condition Index (NFCI)</strong> is included. The index is constructed by the Federal Reserve, Chicago and is a measure of the conditions of finance, taking financial markets, credit and liquidity and the shadow banking system into account.</p>
-<p>The time series are retrieved using the database of Fred, Economic data provided by the Federal Reserve Bank og St.Louis, and is available on a monthly basis. The time period considered is from 01.01.1990 - 01.12.2022. The data is obatained using package <strong>fredr()</strong></p>
+<p>The time series are retrieved using the database of Fred, Economic data provided by the Federal Reserve Bank og St.Louis, and is available on a monthly basis. The time period considered is from 01.01.1980 - 01.02.2023. The data is obtained using package <strong>fredr()</strong>.</p>
 <div class="cell">
 
 </div>
 <div class="cell">
 
 </div>
-<p><strong>Proterties of the data</strong> The five time series are presented in the figure below.</p>
+<p><strong>Proterties of the data</strong></p>
+<p>The five time series are presented in the figure below All variables except the two indexes are transformed taking the logarithm.</p>
+<p>The industrial production, consumer price index and the overall lending seems to follow an upward trend, although significant event such as the great financial crisis of 2008 and the outbreak of Covid-19 have had significant impact on the short term movements. Looking closer at the to indices, they seem to be somewhat negatively correlated, indicating that the aforementioned hypothesis of NFCI affecting consumer expectations might be somewhat visually present. The variables seems to be I(1)-processes.</p>
 <div class="cell">
 <div class="cell-output-display">
 <p><img src="index_files/figure-html/showing plot-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>In order to statistically determine the stationarity of the variables the auto correlation functions and an Augmented Dicky Fuller test is conducted. Looking at the Autocorrelation functions they indicate, that the variables, except the indices are unit roots, as the ACFs decays slowly, however, although the two indices seem somewhat stationary, their ACF indicates that they might be close to unit root.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/showing acf plot-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Looking at the test results presented in the table below, we see we cannot reject the null hypothesis of the variables being I(1) for the variables except lending and NFCI, nevertheless the test vary quite a when changing the lag parameter, and thus in combination with the plots and ACFs of the variables, we continue assuming that all variables are I(1)</p>
+<div class="cell">
+
+</div>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code>[[1]]
-
-    Augmented Dickey-Fuller Test
-
-data:  Y[, i]
-Dickey-Fuller = -2.1418, Lag order = 7, p-value = 0.5173
-alternative hypothesis: stationary
-
-
-[[2]]
-
-    Augmented Dickey-Fuller Test
-
-data:  Y[, i]
-Dickey-Fuller = -1.767, Lag order = 7, p-value = 0.6755
-alternative hypothesis: stationary
-
-
-[[3]]
-
-    Augmented Dickey-Fuller Test
-
-data:  Y[, i]
-Dickey-Fuller = -2.0203, Lag order = 7, p-value = 0.5686
-alternative hypothesis: stationary
-
-
-[[4]]
-
-    Augmented Dickey-Fuller Test
-
-data:  Y[, i]
-Dickey-Fuller = -2.9896, Lag order = 7, p-value = 0.1593
-alternative hypothesis: stationary
-
-
-[[5]]
-
-    Augmented Dickey-Fuller Test
-
-data:  Y[, i]
-Dickey-Fuller = -3.4095, Lag order = 7, p-value = 0.05256
-alternative hypothesis: stationary</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-###################### 
-# Johansen-Procedure # 
-###################### 
-
-Test type: trace statistic , with linear trend in cointegration 
-
-Eigenvalues (lambda):
-[1]  1.514038e-01  6.262170e-02  3.472780e-02  1.361718e-02  7.595668e-03
-[6] -1.251344e-17
-
-Values of teststatistic and critical values of test:
-
-           test 10pct  5pct  1pct
-r &lt;= 4 |   2.90 10.49 12.25 16.26
-r &lt;= 3 |   8.13 22.76 25.32 30.45
-r &lt;= 2 |  21.60 39.06 42.44 48.45
-r &lt;= 1 |  46.23 59.14 62.99 70.05
-r = 0  | 108.78 83.20 87.31 96.58
-
-Eigenvectors, normalised to first column:
-(These are the cointegration relations)
-
-              indu.l1        cpi.l1       exp.l1      lend.l1       fci.l1
-indu.l1   1.000000000  1.0000000000   1.00000000  1.000000000  1.000000000
-cpi.l1   -4.153260357 -1.6483175099 -29.50537589 -3.372435787 -9.748644178
-exp.l1   -0.010335412 -0.0097374211  -0.03269431 -0.005271992 -0.002930992
-lend.l1   0.530125663  0.5276696545  -2.68662952 -0.697604883  0.386117247
-fci.l1    0.073743351 -0.2428611089   0.46931190  0.049317794 -0.077012594
-trend.l1  0.004400499 -0.0003935797   0.06231205  0.008329810  0.016549668
-             trend.l1
-indu.l1   1.000000000
-cpi.l1   -3.762818206
-exp.l1   -0.002960382
-lend.l1  -0.159795283
-fci.l1    0.053506918
-trend.l1  0.006247359
-
-Weights W:
-(This is the loading matrix)
-
-            indu.l1       cpi.l1        exp.l1       lend.l1        fci.l1
-indu.d -0.019774785  0.015211695  0.0023369134 -0.0058951587 -6.603141e-05
-cpi.d   0.001428811  0.001927206  0.0001314813  0.0004873416  8.235022e-04
-exp.d   5.469095982  7.859189930  0.6524537706  1.9400163614 -8.063855e-01
-lend.d -0.018542231 -0.011310028 -0.0013185109  0.0076936889  2.923947e-04
-fci.d  -0.152042448  0.152759412 -0.0267459082 -0.0111145382 -6.214929e-04
-            trend.l1
-indu.d -1.998761e-13
-cpi.d   1.244456e-13
-exp.d   3.311958e-10
-lend.d -1.014014e-12
-fci.d  -3.809901e-13</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-###################### 
-# Johansen-Procedure # 
-###################### 
-
-Test type: trace statistic , without linear trend and constant in cointegration 
-
-Eigenvalues (lambda):
-[1]  1.609482e-01  8.831373e-02  6.228043e-02  2.360043e-02  9.944258e-03
-[6] -8.683262e-17
-
-Values of teststatistic and critical values of test:
-
-           test 10pct  5pct  1pct
-r &lt;= 4 |   3.81  7.52  9.24 12.97
-r &lt;= 3 |  12.91 17.85 19.96 24.60
-r &lt;= 2 |  37.41 32.00 34.91 41.07
-r &lt;= 1 |  72.63 49.65 53.12 60.16
-r = 0  | 139.49 71.86 76.07 84.45
-
-Eigenvectors, normalised to first column:
-(These are the cointegration relations)
-
-             indu.l1       cpi.l1       exp.l1       lend.l1       fci.l1
-indu.l1   1.00000000  1.000000000  1.000000000  1.0000000000   1.00000000
-cpi.l1   -3.07167358 -2.188434433 -1.790832793 -0.2445345876   9.32969452
-exp.l1   -0.01391492 -0.008010747 -0.009928071  0.0006421323  -0.02256073
-lend.l1   1.14997247  0.689184439  0.495306253 -0.0193598799  -4.88279848
-fci.l1    0.08093797 -0.006573619 -0.249125792 -0.0393860176   0.51465084
-constant  4.94750611  2.703423171  2.262185787 -3.1114666453 -17.08353581
-              constant
-indu.l1   1.000000e+00
-cpi.l1   -1.082580e+00
-exp.l1    2.451296e-06
-lend.l1   9.765727e-03
-fci.l1    6.056023e-02
-constant  1.211270e+00
-
-Weights W:
-(This is the loading matrix)
-
-            indu.l1       cpi.l1       exp.l1       lend.l1        fci.l1
-indu.d -0.010781952 -0.001772534  0.015191144 -0.0107776994 -0.0002672343
-cpi.d   0.002079374 -0.003209452  0.002577668  0.0006400577 -0.0001641743
-exp.d   2.872002505 -0.296784648  7.922028041 -1.6270853073  0.3458490025
-lend.d -0.005947058 -0.009423762 -0.009542620  0.0096530996  0.0003475856
-fci.d  -0.104172319  0.093066807  0.122656733  0.0811260253 -0.0017482517
-            constant
-indu.d  3.942284e-15
-cpi.d  -1.191922e-15
-exp.d  -9.436848e-12
-lend.d  1.220231e-14
-fci.d  -2.522432e-13</code></pre>
+<pre><code>                      Test statistic P-value Lags
+Industrial Production         -1.422   0.823   12
+Consumer Price Index          -2.658   0.300   12
+Consumer Expectation          -2.663   0.297   12
+Lending                       -3.620   0.031   12
+NFCI                          -3.454   0.047   12</code></pre>
 </div>
 </div>
-<pre><code>execute:
-  echo: true</code></pre>
 </section>
-<section id="references" class="level2 unnumbered">
-<h2 class="unnumbered anchored" data-anchor-id="references">References</h2>
+<section id="econometric-model-and-hypothesis" class="level2">
+<h2 class="anchored" data-anchor-id="econometric-model-and-hypothesis">Econometric model and hypothesis</h2>
+<p>In order to determine the effect of a tightening of financial conditions to the real economy one could apply a structural vector autoregressive model (SVAR), which enables an identification of that exact shock. A general version of the SVAR with q-lags is presented below: <span class="math display">\[\begin{gather}
+        B_0y_t=c_0+B_1y_{t-1}+B_2y_{t-2}+...+B_qy_{t-q}+\varepsilon_t,
+\end{gather}\]</span> where <span class="math inline">\(y_t\)</span> is a <span class="math inline">\(K \times 1\)</span> matrix, <span class="math inline">\(B_i\)</span> is a <span class="math inline">\(K \times K\)</span> and <span class="math inline">\(c\)</span> and <span class="math inline">\(\varepsilon_t\)</span> are <span class="math inline">\(K \times 1\)</span> matrices where <span class="math inline">\(K= \text{number of variables}\)</span>. The <span class="math inline">\(B_0\)</span> is known as the structural matrix, which includes contemporaneous relationships, and <span class="math inline">\(\varepsilon_t\)</span> contains, conditionally on <span class="math inline">\(Y_{t-1}\)</span> orthogonal shocks with <span class="math inline">\(\varepsilon_t \sim iid(0_K,I_K)\)</span>. Pre-multiplying the model with <span class="math inline">\(B_0^{-1}\)</span>, rotating the model from the structural form to the reduced form. We can rewrite the SVAR to the following expression<br>
+<span class="math display">\[\begin{gather} \label{svar}
+    y_t=\mu+A_1y_{t-1}+A_2y_{t-2}+...+A_qy_{t-q}+u_t,
+\end{gather}\]</span> where <span class="math inline">\(A_j=B^{-1}_0B_j\)</span>, <span class="math inline">\(\mu=B_0^{-1}c_0\)</span> and <span class="math inline">\(u_t=B^{-1}_0\varepsilon_t\)</span> and where <span class="math inline">\(u_t|Y_{t-1}\sim iid(0_K,\Sigma)\)</span>, where <span class="math inline">\(\Sigma=B^{-1}_0B^{-1'}_0\)</span>.</p>
+<p>The structure of <span class="math inline">\(B_0^{-1}\)</span> can be imposed by numerous ways, although in order for the model to be identified using exclusion it must be the case, that we impose <span class="math inline">\(K(K-1)/2\)</span> restrictions. In this research paper a cholesky decompostion will be applied thus implying a recursive identification which imposes the <span class="math inline">\(B_0^{-1}\)</span> to be lower triangular.</p>
+<p><strong>How to use the structural model and proposed output</strong></p>
+<p>Having estimated the structural model, one could correctly examine the effects to the real economy of a shock to the financial conditions. Using a shock of one standard deviation the Impulse response functions can be computed indicating how the real economy responds to tighter financial conditions. Having imposed the recursive scheme on the model introduced in the prior section would enable us to see if there is a significant response on the real variables and if the causality assumption of the consumer expectations seems justified. Relating the signs of the impulse responses to the aforementioned hypothesis, one would theoretically expect that tighter financial conditions affected the consumer expectations negatively, imposing negative spill-overs to demand and thus production.</p>
+<p>Additionally, in order to get an understanding of the actual effect computing the variance decomposition could be used. Lastly, as the effect of financial conditions might have varied over time a historical decomposition could be used.</p>
+</section>
+<section id="references" class="level1 unnumbered">
+<h1 class="unnumbered">References</h1>
 
 
 </section>
