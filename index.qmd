@@ -23,7 +23,7 @@ The objective question to be answered can thus be summarized as follows; Does a 
 
 It is or rather has been a standard part of macroeconomic modelling to exclude the financial sector from applied theoretical modelling. This has been a popular choice of researchers, who has argued that there is no or at least negligible relationship between financial and real variables. Nevertheless, financial crisis are often followed by significant drops in consumption and production, which might be a result of lower consumer sentiment, affecting the overall demand for goods as well as savings. It is therefore of importance for various policy makers to apply these insight when forming the economic policy as tighter monetary and/or macroprudential stances might have some undesired outcomes. 
 
-Furthermore, the research question is highly applicable in today's economic climate as central banks has started raising rates world wide, the financial condition index enables us to get a complete view of the affects that this might have by looking at financial markets, credit and liquidity while including the shadow banking system.          
+Furthermore, the research question is highly applicable in today's economic climate as central banks has started raising rates world wide, the financial condition index enables us to get a complete view of the affects that this might have by looking at financial markets, credit and liquidity while including the shadow banking system. The analysis is somewhat inspired by Pedersen and Roager (2019), who finds that easing financial conditions had a positive impact on the danish economy using quarterly data. In this paper monthly data is used in order to estimate the model on a higher frequency enabling policy makers to gain insights of the current state of the economy.            
 
 ## Data and its properties 
 As financial variables in general are fast moving compared to real economic variables, one obstacle was to find economic variables, which was able to mimic the effects on the real economy although on a higher frequency. 
@@ -40,7 +40,7 @@ As aforementioned, one could hypothesize that the effect which financial conditi
 
 Lastly, as we are interested in identifying a shock to financial conditions, the **National Financial Condition Index (NFCI)** is included. The index is constructed by the Federal Reserve, Chicago and is a measure of the conditions of finance, taking financial markets, credit and liquidity and the shadow banking system into account. 
 
-The time series are retrieved using the database of Fred, Economic data provided by the Federal Reserve Bank og St.Louis, and is available on a monthly basis. The time period considered is from 01.01.1990 - 01.12.2022. The data is obatained using package **fredr()** 
+The time series are retrieved using the database of Fred, Economic data provided by the Federal Reserve Bank og St.Louis, and is available on a monthly basis. The time period considered is from 01.01.1980 - 01.02.2023. The data is obtained using package **fredr()**. 
 
 ```{r Getting data from fred}
 #| echo: false
@@ -62,7 +62,7 @@ library(tinytex)
 #Setting up API key from FRED
 fredr_set_key("54706a95d44824ac499f1012d9b3a401")
 
-start_date <- as.Date("1991-01-01")
+start_date <- as.Date("1980-01-01")
 end_date <- as.Date("2023-02-01")
 
 # Define a vector of series IDs
@@ -150,11 +150,13 @@ fincon = ggplot(data = Y[,5], aes(x = index(Y[,5]), y = Y[,5])) +
   labs(title = "National Financial Condition index", x = "Year", y = "Index") +
   theme_minimal()
 
-
 ```
 
 **Proterties of the data**
-The five time series are presented in the figure below. 
+
+The five time series are presented in the figure below All variables except the two indexes are transformed taking the logarithm. 
+
+The industrial production, consumer price index and the overall lending seems to follow an upward trend, although significant event such as the great financial crisis of 2008 and the outbreak of Covid-19 have had significant impact on the short term movements. Looking closer at the to indices, they seem to be somewhat negatively correlated, indicating that the aforementioned hypothesis of NFCI affecting consumer expectations might be somewhat visually present. The variables seems to be I(1)-processes.
 
 ```{r showing plot}
 #| echo: false
@@ -165,26 +167,93 @@ grid.arrange(ip, inf, ex, le, fincon, nrow = 3, ncol = 2)
 
 ```
 
+In order to statistically determine the stationarity of the variables the auto correlation functions and an Augmented Dicky Fuller test is conducted. Looking at the Autocorrelation functions they indicate, that the variables, except the indices are unit roots, as the ACFs decays slowly, however, although the two indices seem somewhat stationary, their ACF indicates that they might be close to unit root.
+
+```{r showing acf plot}
+#| echo: false
+#| #| message: false
+#| warning: false
+par(mfrow=c(2,3))
+a_ip = acf(Y[,1], lag.max = 20, main = "ACF Plot, Industrial production", ylab = "Autocorrelation", type = "correlation")
+a_cpi = acf(Y[,2], lag.max = 20, main = "ACF Plot, Consumer price index", ylab = "Autocorrelation", type = "correlation")
+a_exp = acf(Y[,3], lag.max = 20, main = "ACF Plot, Consumer expectations", ylab = "Autocorrelation", type = "correlation")
+a_le = acf(Y[,4], lag.max = 20, main = "ACF Plot, Lending", ylab = "Autocorrelation", type = "correlation")
+a_fci = acf(Y[,5], lag.max = 20, main = "ACF Plot, NFCI", ylab = "Autocorrelation", type = "correlation")
+
+```
+
+Looking at the test results presented in the table below, we see we cannot reject the null hypothesis of the variables being I(1) for the variables except lending and NFCI, nevertheless the test vary quite a when changing the lag parameter, and thus in combination with the plots and ACFs of the variables, we continue assuming that all variables are I(1)  
+
 ```{r test}
 #| echo: false
+#| message: false
+#| warning: false
+#| results: hide
 #Doing an ACF test :::::::: change to 6 if HP incl.
+#
+max_lag = 12
 adf_ <- list()
 for (i in 1:5) {
-  adf_result = adf.test(Y[,i])
+  adf_result = adf.test(Y[,i], k = max_lag)
   adf_[[i]] <- adf_result
 }
 head(adf_)
 
-# Testing for cointegration rank with trend
-vecm_Y = ca.jo(Y, type = "trace", ecdet = "trend", K = 5, spec = "transitory")
-summary(vecm_Y) 
+adf_table <- data.frame(Test_Statistic = numeric(length(adf_)), 
+                        p_value = numeric(length(adf_)), 
+                        Lags_Used = numeric(length(adf_)))
 
-# Testing for cointegration rank with constant
-vecm_Y = ca.jo(Y, type = "trace", ecdet = "cons", K = 5, spec = "transitory")
-summary(vecm_Y) 
+# Fill in the data frame with the test results
+for (i in 1:length(adf_)) {
+  adf_table[i, "Test_Statistic"] = round(adf_[[i]]$statistic,3)
+  adf_table[i, "p_value"] = round(adf_[[i]]$p.value,3)
+  adf_table[i, "Lags_Used"] = round(adf_[[i]]$parameter,3)
+}
+
+# Print the data frame
+rownames(adf_table)<- c("Industrial Production", "Consumer Price Index", "Consumer Expectation", "Lending","NFCI")
+colnames(adf_table)<- c("Test statistic", "P-value", "Lags")
+print(adf_table)
+
+# Testing for cointegration rank with trend
+#vecm_Y = ca.jo(Y, type = "trace", ecdet = "trend", K = 5, spec = "transitory")
+#summary(vecm_Y) 
+
 ```
+
+```{r test show}
+#| echo: false
+#| message: false
+#| warning: false
+
+# Print the data frame
+rownames(adf_table)<- c("Industrial Production", "Consumer Price Index", "Consumer Expectation", "Lending","NFCI")
+colnames(adf_table)<- c("Test statistic", "P-value", "Lags")
+print(adf_table)
+
+# Testing for cointegration rank with trend
+#vecm_Y = ca.jo(Y, type = "trace", ecdet = "trend", K = 5, spec = "transitory")
+#summary(vecm_Y) 
+
 ```
-execute:
-  echo: true
-```
-## References {.unnumbered}
+
+## Econometric model and hypothesis  
+In order to determine the effect of a tightening of financial conditions to the real economy one could apply a structural vector autoregressive model (SVAR), which enables  an identification of that exact shock. A general version of the SVAR with q-lags is presented below: 
+\begin{gather}
+        B_0y_t=c_0+B_1y_{t-1}+B_2y_{t-2}+...+B_qy_{t-q}+\varepsilon_t,
+\end{gather}
+where $y_t$ is a $K \times 1$ matrix, $B_i$ is a $K \times K$ and $c$ and $\varepsilon_t$ are $K \times 1$ matrices where $K= \text{number of variables}$. The $B_0$ is known as the structural matrix, which includes contemporaneous relationships, and $\varepsilon_t$ contains, conditionally on $Y_{t-1}$ orthogonal shocks with $\varepsilon_t \sim iid(0_K,I_K)$. Pre-multiplying the model with $B_0^{-1}$, rotating the model from the structural form to the reduced form. We can rewrite the SVAR to the following expression   
+\begin{gather} \label{svar}
+    y_t=\mu+A_1y_{t-1}+A_2y_{t-2}+...+A_qy_{t-q}+u_t,
+\end{gather}
+where $A_j=B^{-1}_0B_j$, $\mu=B_0^{-1}c_0$ and $u_t=B^{-1}_0\varepsilon_t$ and where $u_t|Y_{t-1}\sim iid(0_K,\Sigma)$, where $\Sigma=B^{-1}_0B^{-1'}_0$. 
+
+The structure of $B_0^{-1}$ can be imposed by numerous ways, although in order for the model to be identified using exclusion it must be the case, that we impose $K(K-1)/2$ restrictions. In this research paper a cholesky decompostion will be applied thus implying a recursive identification which imposes the $B_0^{-1}$ to be lower triangular. 
+
+**How to use the structural model and proposed output**
+
+Having estimated the structural model, one could correctly examine the effects to the real economy of a shock to the financial conditions. Using a shock of one standard deviation the Impulse response functions can be computed indicating how the real economy responds to tighter financial conditions. Having imposed the recursive scheme on the model introduced in the prior section would enable us to see if there is a significant response on the real variables and if the causality assumption of the consumer expectations seems justified. Relating the signs of the impulse responses to the aforementioned hypothesis, one would theoretically expect that tighter financial conditions affected the consumer expectations negatively, imposing negative spill-overs to demand and thus production. 
+
+Additionally, in order to get an understanding of the actual effect computing the variance decomposition could be used. Lastly, as the effect of financial conditions might have varied over time a historical decomposition could be used.    
+
+# References {.unnumbered}
