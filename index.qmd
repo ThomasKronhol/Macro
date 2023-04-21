@@ -30,9 +30,9 @@ As mentioned in the prior section the results of the structural analysis should 
 
 The economic variables used for the empirical analysis are given by: 
 
-The economic activity, and thus a measure of the real economy, is modeled by **industrial production** which is an approximate variable for the movements in Gross Domestic Product (GDP). Industrial production is often used as a measure for real economic activity, and is in particular considered sufficient for economies with a large manufacturing sector.
+The economic activity, and thus a measure of the real economy, is modeled by **industrial production** which is an approximate variable for the movements in Gross Domestic Product (GDP). Industrial production is often used as a measure for real economic activity, and is in particular considered sufficient for economies with a large manufacturing sector. *Perhaps add a sentence where you relate this directly to your project and therefore the US economy.*
 
-Additionally, the **consumer price index (CPI)** has been introduced to the model as well. The price level is included as financial conditions might affect the price level. Furthermore, given the mandates of the Federal Reserve (Fed), it is of importance getting an understanding of the relation between these variables. 
+Additionally, the **consumer price index (CPI)** has been introduced to the model as well. The price level is included as financial conditions might affect the price level. Furthermore, given the mandates of the Federal Reserve (Fed), it is of importance getting an understanding of the relation between these variables. *Maybe shortly elaborate on these mandates.* 
 
 In order to directly link the movements in the financial condition index and the real economy, total **lending** from commercial banks is applied. This is due to the fact that as financial conditions are possibly tightened through monetary or financial regulatory authorities, it might become harder to obtain a loan for households as well as firms, which might impact the economic activity, as evident from the financial crisis in 2008. 
 
@@ -181,7 +181,7 @@ a_fci = acf(Y[,6], lag.max = 12, main = "ACF Plot, NFCI", ylab = "Autocorrelatio
 
 ```
 
-In order to examine the order of integration, an Augmented Dicky Fuller test is conducted using function **adf()**. The test statistically tests for the existence of a unit root in the time series univariatly. The results can be found in the table below. 
+In order to examine the order of integration, an Augmented Dicky Fuller test is conducted using function **adf()**. The test statistically tests for the existence of a unit root in the time series univariatly. The results can be found in the table below. *Shortly justify why you set p=2. Because of monthly data?*.
 
 ```{r test}
 #| echo: false
@@ -232,7 +232,7 @@ print(adf_table)
 
 As evident from the table we are not able to reject the null hypothesis of the presence of a unit root in any of the time series at a 5 pct. level of significance, and thus not able to reject the hypothesis of the variables being integrated of order 1. 
 
-The order of integration is of particular interest when doing structural analysis, given that the shocks to stationary processes can be considered temporary, while shocks to I(1)-processes can be considered permanent given that random walk processes has a high degree of memory from past shocks. Thus, as the variables are I(1)-processes, all shocks can be considered permanent. 
+The order of integration is of particular interest when doing structural analysis, given that the shocks to stationary processes can be considered temporary, while shocks to I(1)-processes can be considered permanent given that random walk processes has a high degree of memory from past shocks. Thus, as the variables are I(1)-processes, all shocks can be considered permanent. *Perhaps add a sentence about what this means for the specification of your prior.*
 
 ## Econometric model and hypothesis  
 In order to determine the effect of a tightening of the financial conditions to the real economy one could apply a structural vector autoregressive model (SVAR), which enables an identification of that exact shock. A general version of the SVAR with q-lags is presented below: 
@@ -247,7 +247,7 @@ For convenience researchers often consider the reduced form of the structural mo
 \end{gather}
 where $A_j=B^{-1}_0B_j$, $\mu=B_0^{-1}c_0$ and $u_t=B^{-1}_0\varepsilon_t$ and where $u_t|Y_{t-1}\sim iid(0_K,\Sigma)$, where $\Sigma=B^{-1}_0B^{-1'}_0$. 
 
-The structure of $B_0^{-1}$ can be imposed in numerous ways, although in order for the model to be identified using exclusion it must be the case, that we impose $K(K-1)/2$ restrictions. In this research paper a cholesky decompostion will be applied. This implies a recursive identification which imposes the $B_0^{-1}$ to be lower triangular. The ordering of the variables in $y_t$ is justified using economic theory.   
+The structure of $B_0^{-1}$ can be imposed in numerous ways, although in order for the model to be identified using exclusion it must be the case, that we impose $K(K-1)/2$ restrictions. In this research paper a cholesky decompostion will be applied. This implies a recursive identification which imposes the $B_0^{-1}$ to be lower triangular. The ordering of the variables in $y_t$ is justified using economic theory. *Please elaborate on why you think this recursive system is justified using economic theory. This might be a strong assumption given that you have six variables in your model. Perhaps consider a non-recursive system.*.   
 
 **How to use the structural model and proposed output**
 
