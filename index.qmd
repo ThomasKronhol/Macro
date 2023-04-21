@@ -1,5 +1,5 @@
 ---
-title: "Macroeconometrics: An investigation of the effects of financial conditions on the real economy"
+title: "Macroeconometrics: An Investigation of the Effects of Financial Conditions on the US Real Economy"
 author: 
   - name: "Thomas Kronholm Moeller"
 # format:
