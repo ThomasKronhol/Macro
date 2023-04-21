@@ -15,22 +15,22 @@ format:
 > Disclaimer: This page is an ongoing research project conducted as a part of Macroeconometrics (ECOM9007) at The University of Melbourne, Australia.\
 
 ## Research question & Motivation
-As the financial crises emerged in 2008, the world economy realized just how much financial conditions affected the real economy. This research project intends to quantify the effects of a tightening of financial conditions on the real economy. 
+As the financial crisis emerged in 2008, the world economy realized just how much financial conditions affected the real economy. This research project intends to quantify the effects of a tightening of the financial conditions on the real economy. 
 
-The objective question to be answered can thus be summarized as follows; Does a tightening of financial conditions have the anticipated effects on the real economy, and if so, what are the magnitudes.       
+The objective question to be answered can thus be summarized as follows; Does a tightening of the financial conditions have the anticipated effects on the real economy, and if so, what are the magnitudes?       
 
 **What motivates this?**
 
-It is, or rather has been a standard part of macroeconomic modelling to exclude the financial sector from applied theoretical modelling. This has been a popular choice of researchers, who have argued that there is no or at least a negligible relationship between financial and real variables. Nevertheless, financial crisis are often followed by significant drops in consumption and production, as evident from the figure of the respective series in the forthcoming section. This might be a result of lower consumer sentiment, which possibly through a wealth channel, affects the overall demand for goods as well as savings. Thus, getting a thorough understanding of the effect of financial conditions on the real economy is of importance for policy makers, who should take these insights into account when tightening the financial conditions through tighter monetary and/or macroprudential stances, as they might have some undesired outcomes. 
+It is, or rather has been a standard part of macroeconomic modelling to exclude the financial sector from applied theoretical modelling. This has been a popular choice of researchers, who have argued that there is no or at least a negligible effect of financial variables on real variables. Nevertheless, financial crises are often followed by significant drops in consumption and production, as evident from the figure of the respective series in the forthcoming section. This might be a result of lower consumer sentiment, which possibly through a wealth channel, affects the overall demand for goods as well as savings. Thus, getting a thorough understanding of the effect of the financial conditions on the real economy is of importance for policy makers, who should take these insights into account when tightening the financial conditions through tighter monetary and/or macroprudential stances, as they might result in some undesired outcomes. 
 
-Furthermore, the research question is highly applicable in today's economic climate. As central banks have started raising rates world wide, the financial condition index enables us to get a complete view of the affects that this might have by looking at financial markets, credit and liquidity while including the shadow banking system. The analysis is somewhat inspired by Pedersen and Roager (2019), who finds that easing financial conditions had a positive impact on the danish economy using quarterly data. 
+Furthermore, the research question is highly applicable in today's economic climate. As central banks have started raising rates world wide, the financial condition index enables us to get a complete view of the effects that this might have by looking at financial markets, credit and liquidity while including the shadow banking system. The analysis is somewhat inspired by Pedersen and Roager (2019), who finds that easing financial conditions had a positive impact on the Danish economy using quarterly data. 
 
 ## Data and its properties 
 As mentioned in the prior section the results of the structural analysis should be of immediate use for economic policy makers, and thus a high frequency is of importance. The model will therefore be estimated using monthly data for the economy of the United States.    
 
 The economic variables used for the empirical analysis are given by: 
 
-The economic activity, and thus a measure of the real economy, is modeled by **industrial production** which is an approximate variable mimicking the movements in Gross Domestic Product (GDP). Industrial production is often used as a measure for real economic activity, and is in particular considered sufficient for economies with a large manufacturing sector.
+The economic activity, and thus a measure of the real economy, is modeled by **industrial production** which is an approximate variable for the movements in Gross Domestic Product (GDP). Industrial production is often used as a measure for real economic activity, and is in particular considered sufficient for economies with a large manufacturing sector.
 
 Additionally, the **consumer price index (CPI)** has been introduced to the model as well. The price level is included as financial conditions might affect the price level. Furthermore, given the mandates of the Federal Reserve (Fed), it is of importance getting an understanding of the relation between these variables. 
 
@@ -164,7 +164,7 @@ grid.arrange(ip, inf, ex, le, hou, fincon, nrow = 3, ncol = 2)
 
 ```
 
-In order to get deeper understanding of the order of integration of the time series, the Autocorrelation function has been plottet in the graph below. The plot indicates, that the series are highly auto correlated, thus indicating a univariate parameter value close to unity implying a high degree of memory.  
+In order to get a deeper understanding of the order of integration of the time series, the Autocorrelation function has been plotted in the graph below. The plot indicates, that the series are highly autocorrelated, thus indicating a univariate parameter value close to unity implying a high degree of memory.  
 
 ```{r showing acf plot}
 #| echo: false
@@ -235,27 +235,27 @@ As evident from the table we are not able to reject the null hypothesis of the p
 The order of integration is of particular interest when doing structural analysis, given that the shocks to stationary processes can be considered temporary, while shocks to I(1)-processes can be considered permanent given that random walk processes has a high degree of memory from past shocks. Thus, as the variables are I(1)-processes, all shocks can be considered permanent. 
 
 ## Econometric model and hypothesis  
-In order to determine the effect of a tightening of financial conditions to the real economy one could apply a structural vector autoregressive model (SVAR), which enables an identification of that exact shock. A general version of the SVAR with q-lags is presented below: 
+In order to determine the effect of a tightening of the financial conditions to the real economy one could apply a structural vector autoregressive model (SVAR), which enables an identification of that exact shock. A general version of the SVAR with q-lags is presented below: 
 \begin{gather}
         B_0y_t=c_0+B_1y_{t-1}+B_2y_{t-2}+...+B_qy_{t-q}+\varepsilon_t,
 \end{gather}
 where $y_t$ is a $K \times 1$ matrix containing the variables outlined in section "Data and its properties", $B_i$ is a $K \times K$ and $c$ and $\varepsilon_t$ are $K \times 1$ matrices where $K= \text{number of variables}$. The $B_0$ is known as the structural matrix, containing contemporaneous relationships. $\varepsilon_t$ conditionally on $Y_{t-1}$ contains the orthogonal shocks with $\varepsilon_t \sim iid(0_K,I_K)$.
 
-For convenience researchers often consider the reduced form of the Structural model. Pre-multiplying the model with $B_0^{-1}$, rotating the model from the structural form to the reduced form. The model can be written as:    
+For convenience researchers often consider the reduced form of the structural model. Pre-multiplying the model with $B_0^{-1}$, rotating the model from the structural form to the reduced form. The model can be written as:    
 \begin{gather} \label{svar}
     y_t=\mu+A_1y_{t-1}+A_2y_{t-2}+...+A_qy_{t-q}+u_t,
 \end{gather}
 where $A_j=B^{-1}_0B_j$, $\mu=B_0^{-1}c_0$ and $u_t=B^{-1}_0\varepsilon_t$ and where $u_t|Y_{t-1}\sim iid(0_K,\Sigma)$, where $\Sigma=B^{-1}_0B^{-1'}_0$. 
 
-The structure of $B_0^{-1}$ can be imposed by numerous ways, although in order for the model to be identified using exclusion it must be the case, that we impose $K(K-1)/2$ restrictions. In this research paper a cholesky decompostion will be applied. This implies a recursive identification which imposes the $B_0^{-1}$ to be lower triangular. The ordering of the variables in $y_t$ is justified using economic theory.   
+The structure of $B_0^{-1}$ can be imposed in numerous ways, although in order for the model to be identified using exclusion it must be the case, that we impose $K(K-1)/2$ restrictions. In this research paper a cholesky decompostion will be applied. This implies a recursive identification which imposes the $B_0^{-1}$ to be lower triangular. The ordering of the variables in $y_t$ is justified using economic theory.   
 
 **How to use the structural model and proposed output**
 
-Having estimated the structural model, one could correctly examine the effects to the real economy of a shock to the financial conditions. Using a shock of one standard deviation, the structural Impulse response functions (IRF) can be computed. The impulse responses indicates how the real economy responds to a tightening of financial conditions. Having correctly imposed the recursive scheme on the model introduced in the prior section would enable us to see if there is a significant response on the real variables and additionally if the causality assumption of the consumer expectations, and its effect onto economic variables seems justified statistically. 
+Having estimated the structural model, one could correctly examine the effects to the real economy of a shock to the financial conditions. Using a shock of one standard deviation, the structural impulse response functions (IRF) can be computed. The impulse responses indicate how the real economy responds to a tightening of the financial conditions. Having correctly imposed the recursive scheme on the model introduced in the prior section would enable us to see if there is a significant response on the real variables and additionally if the causality assumption of the consumer expectations, and its effect onto economic variables seem justified statistically. 
 
 Relating the signs of the impulse responses to the aforementioned hypothesis, one would theoretically expect that tighter financial conditions affected the consumer expectations negatively, which would have negative spill-overs to demand and thus production. 
 
-In order to get a better understanding of how much financial conditions affect the variables of interest one could compute a variance decomposition, and given that there at some point in the observed period might have been some kind of paradigm shift, using a historical decomposition can be used to see if the explanatory power of financial conditions onto economic variables has changed over time.     
+In order to get a better understanding of how much financial conditions affect the variables of interest one could compute a forecast error variance decomposition, and given that there at some point in the observed period might have been some kind of paradigm shift, using a historical decomposition can be used to see if the explanatory power of the financial conditions onto economic variables have changed over time.     
 
 # References {.unnumbered}
 Kilian, L., \& L¨utkepohl, H. (2017). Structural Vector Autoregressive Analysis. Cambridge
