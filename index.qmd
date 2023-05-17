@@ -10,37 +10,105 @@ format:
   html:
     toc: true
     toc-location: left
+editor: 
+  markdown: 
+    wrap: 72
 ---
 
-> Disclaimer: This page is an ongoing research project conducted as a part of Macroeconometrics (ECOM9007) at The University of Melbourne, Australia.\
+> Disclaimer: This page is an ongoing research project conducted as a
+> part of Macroeconometrics (ECOM9007) at The University of Melbourne,
+> Australia.\
 
 ## Research question & Motivation
-As the financial crisis emerged in 2008, the world economy realized just how much financial conditions affected the real economy. This research project intends to quantify the effects of a tightening of the financial conditions on the real economy. 
 
-The objective question to be answered can thus be summarized as follows; Does a tightening of the financial conditions have the anticipated effects on the real economy, and if so, what are the magnitudes?       
+As the financial crisis emerged in 2008, the world economy realized just
+how much financial conditions affected the real economy. This research
+project intends to quantify the effects of a tightening of the financial
+conditions on the real economy.
+
+The objective question to be answered can thus be summarized as follows;
+Does a tightening of the financial conditions have the anticipated
+effects on the real economy, and if so, what are the magnitudes?
 
 **What motivates this?**
 
-It is, or rather has been a standard part of macroeconomic modelling to exclude the financial sector from applied theoretical modelling. This has been a popular choice of researchers, who have argued that there is no or at least a negligible effect of financial variables on real variables. Nevertheless, financial crises are often followed by significant drops in consumption and production, as evident from the figure of the respective series in the forthcoming section. This might be a result of lower consumer sentiment, which possibly through a wealth channel, affects the overall demand for goods as well as savings. Thus, getting a thorough understanding of the effect of the financial conditions on the real economy is of importance for policy makers, who should take these insights into account when tightening the financial conditions through tighter monetary and/or macroprudential stances, as they might result in some undesired outcomes. 
+It is, or rather has been a standard part of macroeconomic modelling to
+exclude the financial sector from applied theoretical modelling. This
+has been a popular choice of researchers, who have argued that there is
+no or at least a negligible effect of financial variables on real
+variables. Nevertheless, financial crises are often followed by
+significant drops in consumption and production, as evident from the
+figure of the respective series in the forthcoming section. This might
+be a result of lower consumer sentiment, which possibly through a wealth
+channel, affects the overall demand for goods as well as savings. Thus,
+getting a thorough understanding of the effect of the financial
+conditions on the real economy is of importance for policy makers, who
+should take these insights into account when tightening the financial
+conditions through tighter monetary and/or macroprudential stances, as
+they might result in some undesired outcomes.
 
-Furthermore, the research question is highly applicable in today's economic climate. As central banks have started raising rates world wide, the financial condition index enables us to get a complete view of the effects that this might have by looking at financial markets, credit and liquidity while including the shadow banking system. The analysis is somewhat inspired by Pedersen and Roager (2019), who finds that easing financial conditions had a positive impact on the Danish economy using quarterly data. 
+Furthermore, the research question is highly applicable in today's
+economic climate. As central banks have started raising rates world
+wide, the financial condition index enables us to get a complete view of
+the effects that this might have by looking at financial markets, credit
+and liquidity while including the shadow banking system. The analysis is
+somewhat inspired by Pedersen and Roager (2019), who finds that easing
+financial conditions had a positive impact on the Danish economy using
+quarterly data.
 
-## Data and its properties 
-As mentioned in the prior section the results of the structural analysis should be of immediate use for economic policy makers, and thus a high frequency is of importance. The model will therefore be estimated using monthly data for the economy of the United States.    
+## Data and its properties
 
-The economic variables used for the empirical analysis are given by: 
+As mentioned in the prior section the results of the structural analysis
+should be of immediate use for economic policy makers, and thus a high
+frequency is of importance. The model will therefore be estimated using
+monthly data for the economy of the United States.
 
-The economic activity, and thus a measure of the real economy, is modeled by **industrial production** which is an approximate variable for the movements in Gross Domestic Product (GDP). Industrial production is often used as a measure for real economic activity, and is in particular considered sufficient for economies with a large manufacturing sector. This implies that later on, the response of the variable can be interpreted as the effect of changes in NFCI to the real activity.
+The economic variables used for the empirical analysis are given by:
 
-Additionally, the **consumer price index (CPI)** has been introduced to the model as well. The price level is included as financial conditions might affect the price level. Furthermore, given the mandates of the Federal Reserve (Fed), which includes keeping inflation steady while maintaining a high rate of employment, it is of importance getting an understanding of the relation between these variables. 
+The economic activity, and thus a measure of the real economy, is
+modeled by **industrial production** which is an approximate variable
+for the movements in Gross Domestic Product (GDP). Industrial production
+is often used as a measure for real economic activity, and is in
+particular considered sufficient for economies with a large
+manufacturing sector. This implies that later on, the response of the
+variable can be interpreted as the effect of changes in NFCI to the real
+activity.
 
-In order to directly link the movements in the financial condition index and the real economy, total **lending** from commercial banks is applied. This is due to the fact that as financial conditions are possibly tightened through monetary or financial regulatory authorities, it might become harder to obtain a loan for households as well as firms, which might impact the economic activity, as evident from the financial crisis in 2008. 
+Additionally, the **consumer price index (CPI)** has been introduced to
+the model as well. The price level is included as financial conditions
+might affect the price level. Furthermore, given the mandates of the
+Federal Reserve (Fed), which includes keeping inflation steady while
+maintaining a high rate of employment, it is of importance getting an
+understanding of the relation between these variables.
 
-Additionally, as it is common to have a large amount of your wealth in real estate, **S\&P U.S. National Home Price Index** has been included. The behavior of the real estate prices might especially have an impact in consumer sentiment possibly through the aforementioned wealth channel, which could then affect the real economy through lower demand for goods or a higher demand for savings. The model therefore includes **consumer sentiment** provided by University of Michigan. The variables of consumer sentiment will be denoted consumer expectations throughout the analysis. 
+In order to directly link the movements in the financial condition index
+and the real economy, total **lending** from commercial banks is
+applied. This is due to the fact that as financial conditions are
+possibly tightened through monetary or financial regulatory authorities,
+it might become harder to obtain a loan for households as well as firms,
+which might impact the economic activity, as evident from the financial
+crisis in 2008.
 
-Lastly, as we are interested in identifying a shock to financial conditions, the **National Financial Condition Index (NFCI)** is included. The index is constructed by the Federal Reserve, Chicago and is a measure of the conditions of finance, taking financial markets, credit and liquidity and the shadow banking system into account. 
+Additionally, as it is common to have a large amount of your wealth in
+real estate, **S&P U.S. National Home Price Index** has been included.
+The behavior of the real estate prices might especially have an impact
+in consumer sentiment possibly through the aforementioned wealth
+channel, which could then affect the real economy through lower demand
+for goods or a higher demand for savings. The model therefore includes
+**consumer sentiment** provided by University of Michigan. The variables
+of consumer sentiment will be denoted consumer expectations throughout
+the analysis.
 
-The time series are retrieved using Fred, the Economic database provided by the Federal Reserve Bank og St.Louis. The time period considered is from 01.01.1987 - 01.01.2023. The data is obtained using package **fredr()**. 
+Lastly, as we are interested in identifying a shock to financial
+conditions, the **National Financial Condition Index (NFCI)** is
+included. The index is constructed by the Federal Reserve, Chicago and
+is a measure of the conditions of finance, taking financial markets,
+credit and liquidity and the shadow banking system into account.
+
+The time series are retrieved using Fred, the Economic database provided
+by the Federal Reserve Bank og St.Louis. The time period considered is
+from 01.01.1987 - 01.01.2023. The data is obtained using package
+**fredr()**.
 
 ```{r Getting data from fred}
 #| echo: false
@@ -59,6 +127,11 @@ library(tidyverse)
 library(palmerpenguins)
 library(quarto)
 library(tinytex)
+library(quantmod)
+library(mvtnorm)
+library(MASS)
+library(parallel)
+
 #Setting up API key from FRED
 fredr_set_key("54706a95d44824ac499f1012d9b3a401")
 
@@ -152,9 +225,17 @@ fincon = ggplot(data = Y[,6], aes(x = index(Y[,6]), y = Y[,6])) +
 
 **Preliminary data analysis**
 
-The six time series are presented in the figure below. All variables, except the two indexes, are transformed using the logarithm. 
+The six time series are presented in the figure below. All variables,
+except the two indexes, are transformed using the logarithm.
 
-The industrial production, consumer price index, the house price index and overall lending seems to follow an upward trend. Nevertheless, significant events such as the great financial crisis of 2008 and the outbreak of Covid-19 have had significant impact on the short term movements in the respective series. Looking closer at the two indices, they seem to be somewhat negatively correlated, indicating that the aforementioned hypothesis of NFCI affecting consumer sentiment might be somewhat visually present. 
+The industrial production, consumer price index, the house price index
+and overall lending seems to follow an upward trend. Nevertheless,
+significant events such as the great financial crisis of 2008 and the
+outbreak of Covid-19 have had significant impact on the short term
+movements in the respective series. Looking closer at the two indices,
+they seem to be somewhat negatively correlated, indicating that the
+aforementioned hypothesis of NFCI affecting consumer sentiment might be
+somewhat visually present.
 
 ```{r showing plot}
 #| echo: false
@@ -164,7 +245,11 @@ grid.arrange(ip, inf, ex, le, hou, fincon, nrow = 3, ncol = 2)
 
 ```
 
-In order to get a deeper understanding of the order of integration of the time series, the Autocorrelation function has been plotted in the graph below. The plot indicates, that the series are highly autocorrelated, thus indicating a univariate parameter value close to unity implying a high degree of memory.  
+In order to get a deeper understanding of the order of integration of
+the time series, the Autocorrelation function has been plotted in the
+graph below. The plot indicates, that the series are highly
+autocorrelated, thus indicating a univariate parameter value close to
+unity implying a high degree of memory.
 
 ```{r showing acf plot}
 #| echo: false
@@ -181,7 +266,11 @@ a_fci = acf(Y[,6], lag.max = 12, main = "ACF Plot, NFCI", ylab = "Autocorrelatio
 
 ```
 
-In order to examine the order of integration, an Augmented Dicky Fuller test is conducted using function **adf()**. The test statistically tests for the existence of a unit root in the time series univariatly. The lag length used for the test is chosen to be 12. This is primarily a result of the data being monthly. The results can be found in the table below.
+In order to examine the order of integration, an Augmented Dicky Fuller
+test is conducted using function **adf()**. The test statistically tests
+for the existence of a unit root in the time series univariatly. The lag
+length used for the test is chosen to be 12. This is primarily a result
+of the data being monthly. The results can be found in the table below.
 
 ```{r test}
 #| echo: false
@@ -230,39 +319,839 @@ print(adf_table)
 
 ```
 
-As evident from the table we are not able to reject the null hypothesis of the presence of a unit root in any of the time series at a 5 pct. level of significance, and thus not able to reject the hypothesis of the variables being integrated of order 1. 
+As evident from the table we are not able to reject the null hypothesis
+of the presence of a unit root in any of the time series at a 5 pct.
+level of significance, and thus not able to reject the hypothesis of the
+variables being integrated of order 1.
 
-The order of integration is of particular interest when doing structural analysis, given that the shocks to stationary processes can be considered temporary, while shocks to I(1)-processes can be considered permanent given that random walk processes has a high degree of memory from past shocks. Thus, as the variables are I(1)-processes, all shocks can be considered permanent. Given the properties of the time series multiple priors are available. First of all, following the literature, using a Normal-Wishart prior could be sufficient in getting some reliable estimates of the shocks. However, one could also use a dummy-prior, enabling the econometrician to examine the joint dynamics of the time series aforementioned in the long run. This could be done by following the work of Giannone et al. (2019).
+The order of integration is of particular interest when doing structural
+analysis, given that the shocks to stationary processes can be
+considered temporary, while shocks to I(1)-processes can be considered
+permanent given that random walk processes has a high degree of memory
+from past shocks. Thus, as the variables are I(1)-processes, all shocks
+can be considered permanent. Given the properties of the time series
+multiple priors are available. First of all, following the literature,
+using a Normal-Wishart prior could be sufficient in getting some
+reliable estimates of the shocks. However, one could also use a
+dummy-prior, enabling the econometrician to examine the joint dynamics
+of the time series aforementioned in the long run. This could be done by
+following the work of Giannone et al. (2019).
 
+## Econometric model and hypothesis
 
-## Econometric model and hypothesis  
-In order to determine the effect of a tightening of the financial conditions to the real economy one could apply a structural vector autoregressive model (SVAR), which enables an identification of that exact shock. A general version of the SVAR with q-lags is presented below: 
-\begin{gather}
+In order to determine the effect of a tightening of the financial
+conditions to the real economy one could apply a structural vector
+autoregressive model (SVAR), which enables an identification of that
+exact shock. A general version of the SVAR with q-lags is presented
+below: \begin{gather}
         B_0y_t=c_0+B_1y_{t-1}+B_2y_{t-2}+...+B_qy_{t-q}+\varepsilon_t,
-\end{gather}
-where $y_t$ is a $K \times 1$ matrix containing the variables outlined in section "Data and its properties", $B_i$ is a $K \times K$ and $c$ and $\varepsilon_t$ are $K \times 1$ matrices where $K= \text{number of variables}$. The $B_0$ is known as the structural matrix, containing contemporaneous relationships. $\varepsilon_t$ conditionally on $Y_{t-1}$ contains the orthogonal shocks with $\varepsilon_t \sim iid(0_K,I_K)$.
+\end{gather} where $y_t$ is a $K \times 1$ matrix containing the
+variables outlined in section "Data and its properties", $B_i$ is a
+$K \times K$ and $c$ and $\varepsilon_t$ are $K \times 1$ matrices where
+$K= \text{number of variables}$. The $B_0$ is known as the structural
+matrix, containing contemporaneous relationships. $\varepsilon_t$
+conditionally on $Y_{t-1}$ contains the orthogonal shocks with
+$\varepsilon_t \sim iid(0_K,I_K)$.
 
-For convenience researchers often consider the reduced form of the structural model. Pre-multiplying the model with $B_0^{-1}$, rotating the model from the structural form to the reduced form. The model can be written as:    
+For convenience researchers often consider the reduced form of the
+structural model. Pre-multiplying the model with $B_0^{-1}$, rotating
+the model from the structural form to the reduced form. The model can be
+written as:\
 \begin{gather} \label{svar}
     y_t=\mu+A_1y_{t-1}+A_2y_{t-2}+...+A_qy_{t-q}+u_t,
-\end{gather}
-where $A_j=B^{-1}_0B_j$, $\mu=B_0^{-1}c_0$ and $u_t=B^{-1}_0\varepsilon_t$ and where $u_t|Y_{t-1}\sim iid(0_K,\Sigma)$, where $\Sigma=B^{-1}_0B^{-1'}_0$. 
+\end{gather} where $A_j=B^{-1}_0B_j$, $\mu=B_0^{-1}c_0$ and
+$u_t=B^{-1}_0\varepsilon_t$ and where $u_t|Y_{t-1}\sim iid(0_K,\Sigma)$,
+where $\Sigma=B^{-1}_0B^{-1'}_0$.
 
-The structure of $B_0^{-1}$ can be imposed in numerous ways, although in order for the model to be identified using exclusion it must be the case, that we impose $K(K-1)/2$ restrictions. In this research paper a cholesky decompostion will be applied. This implies a recursive identification which imposes the $B_0^{-1}$ to be lower triangular. In general the ordering of the variables in $y_t$ must be justified using economic theory. Nevertheless this research paper follows the ordering introduced in Pedersen and Roager (2019), where the variables are ordered from slow to fast moving, thus financial variables will be ordered in the last, while real output and inflation will be ordered first. This might be economically justified by the fact that, even though the variables are all monthly, the impact of the financial variables to the real economy might take one period, thus no contemporaneous effects can be expected.     
+The structure of $B_0^{-1}$ can be imposed in numerous ways, although in
+order for the model to be identified using exclusion it must be the
+case, that we impose $K(K-1)/2$ restrictions. In this research paper a
+cholesky decompostion will be applied. This implies a recursive
+identification which imposes the $B_0^{-1}$ to be lower triangular. In
+general the ordering of the variables in $y_t$ must be justified using
+economic theory. Nevertheless this research paper follows the ordering
+introduced in Pedersen and Roager (2019), where the variables are
+ordered from slow to fast moving, thus financial variables will be
+ordered in the last, while real output and inflation will be ordered
+first. This might be economically justified by the fact that, even
+though the variables are all monthly, the impact of the financial
+variables to the real economy might take one period, thus no
+contemporaneous effects can be expected.
 
 **How to use the structural model and proposed output**
 
-Having estimated the structural model, one could correctly examine the effects to the real economy of a shock to the financial conditions. Using a shock of one standard deviation, the structural impulse response functions (IRF) can be computed. The impulse responses indicate how the real economy responds to a tightening of the financial conditions. Having correctly imposed the recursive scheme on the model introduced in the prior section would enable us to see if there is a significant response on the real variables and additionally if the causality assumption of the consumer expectations, and its effect onto economic variables seem justified statistically. 
+Having estimated the structural model, one could correctly examine the
+effects to the real economy of a shock to the financial conditions.
+Using a shock of one standard deviation, the structural impulse response
+functions (IRF) can be computed. The impulse responses indicate how the
+real economy responds to a tightening of the financial conditions.
+Having correctly imposed the recursive scheme on the model introduced in
+the prior section would enable us to see if there is a significant
+response on the real variables and additionally if the causality
+assumption of the consumer expectations, and its effect onto economic
+variables seem justified statistically.
 
-Relating the signs of the impulse responses to the aforementioned hypothesis, one would theoretically expect that tighter financial conditions affected the consumer expectations negatively, which would have negative spill-overs to demand and thus production. 
+Relating the signs of the impulse responses to the aforementioned
+hypothesis, one would theoretically expect that tighter financial
+conditions affected the consumer expectations negatively, which would
+have negative spill-overs to demand and thus production.
 
-In order to get a better understanding of how much financial conditions affect the variables of interest one could compute a forecast error variance decomposition, and given that there at some point in the observed period might have been some kind of paradigm shift, using a historical decomposition can be used to see if the explanatory power of the financial conditions onto economic variables have changed over time.     
+In order to get a better understanding of how much financial conditions
+affect the variables of interest one could compute a forecast error
+variance decomposition, and given that there at some point in the
+observed period might have been some kind of paradigm shift, using a
+historical decomposition can be used to see if the explanatory power of
+the financial conditions onto economic variables have changed over time.
+
+## Estimation procedure and model extensions
+
+In order to estimate the model the model outlined in the previous
+section I follow the algorithm proposed by Waggoner and Zha (2003).
+
+## Basic Model
+
+we start by rewriting the structural model proposed proposed in the
+former section. Using that
+$B_+ = \begin{bmatrix} c_0 & B_1 & \dots & B_q \end{bmatrix}$ and
+$x_t = \begin{pmatrix} 1 & y'_{t-1} & \dots & y'_{t-q} \end{pmatrix}'$
+we have that the model can be written as follows: \begin{gather}
+B_0y_t= B_+x_t + u_t, \text{ where } u_t \sim N(0,1)
+\end{gather}
+
+$B_0$ is the structural matrix containing the exclusionary
+restrictions. By using that $B_{0[n\cdot]}=b_n\;V_n$ , where $b_n$ is a
+vector of unrestricted elements and $V_n$ is a matrix consisting of only
+ones and zeroes, which ensures that the restrictions are imposed on the
+right elements. The dimension of $b_n$ and $V_n$ is $1\times r_n$ and
+$r_n\times N$ respectively. This implies that the restrictions will be
+implemented on each row of the structural matrix such that
+$B_0=\begin{bmatrix} b_1V_1 & \dots & b_NV_N \end{bmatrix}'$. Using the
+arguments the structural model can be written as: \begin{align}
+b_nV_nY &= B_nX+ U_n\\
+U_n   &\sim \mathcal{N}(0_T,I_T)
+\end{align} The dimensions of the matrices are given by; $Y$ is a
+$N\times T$ matrix, $X$ is a $K\times T$, $U_n$ is a $1\times T$ matrix
+and $B_n=B_{+[n\cdot]}$ is of dimension $1\times K$.
+
+In order to derive the posterior distribution, the likelihood function
+of $B_0$ and $B_+$ given data as a $\mathcal{NGN}$ distribution is
+introduced and given by:
+
+```{=tex}
+\begin{align}
+L(B_+,B_0 | Y, X) \propto |\det(B_0)|^T \exp \left\{-\frac{1}{2} \sum_{n=1}^N (b_nV_nY-B_nX)(b_nV_nY-B_nX)'  \right\}
+\end{align}
+```
+Now moving on the to the natural-conjugate prior, we know from Waggoner
+and Zha (2003), that this can be represented by a
+normal-generalized-normal-distribution:
+$p(B_+,B_0)\sim \mathcal{NGN}(\underline{B}, \underline{\Omega}, \underline{S}, \underline{\nu})$,
+where:
+
+```{=tex}
+\begin{align}
+p(B_+,B_0)&=\left(\prod_{n=1}^N p(B_n|b_n)\right)p(b_1,\dots,b_n)\\
+p(B_n|b_n)&\sim \mathcal{N}_K (b_nV_n\underline{B},\underline{\Omega})\\
+p(b_1,\dots,b_n) &\propto |\det (B_0)|^{\underline{\nu}-N} \exp \left\{-\frac{1}{2}\sum_{n=1}^Nb_nV_n\underline{S}^{-1}V_n'b_n'\right\}
+\end{align}
+```
+Thus using the likelihood function and the naturcal-conjugate prior we
+can state the kernel of the natural-conjugate prior distribution given
+by:
+
+```{=tex}
+\begin{align}
+|\det(B_0)|^{\underline{\nu}-N} \exp \left\{-\frac{1}{2} \sum_{n=1}^N b_nV_n\underline{S}^{-1}V_n'B_n'\right\} \times \exp \left\{-\frac{1}{2} \sum_{n=1}^N (B_n-b_nV_n\underline{B})\underline{\Omega}^{-1}(B_n-b_nV_n\underline{B})'\right\}
+\end{align}
+```
+The prior parameters to be exploited is given by:
+
+```{=tex}
+\begin{align}
+\underline{B} &= \left[0_{N\times 1}\;I_N\;0_{N\times(p-1)N}\right]\\
+\underline{\Omega} &= \text{diag} \left(\left[\kappa_2\;\kappa_1(\textbf{p}^{-2}\otimes I_N')\right)\right]\\
+\underline{S} &= \kappa_0I_N\\
+\underline{\nu} &= N
+\end{align}
+```
+This enables us to derive the posterior distribution using the kernel
+outlined:
+
+$$
+\begin{align}
+p(B_+,B_0|Y,X) &\propto L(B_+,B_0|Y,X)p(B_+,B_0)\\
+               &\propto |\det(B_0)|^T \exp \left\{-\frac{1}{2} \sum_{n=1}^N (b_nV_nY-B_nX)(b_nV_nY-B_nX)'  \right\}\\
+               &\times |\det(B_0)|^{\underline{\nu}-N} \exp \left\{-\frac{1}{2} \sum_{n=1}^N b_nV_n\underline{S}^{-1}V_n'B_n'\right\} \\ &\times \exp \left\{-\frac{1}{2} \sum_{n=1}^N (B_n-b_nV_n\underline{B})\underline{\Omega}^{-1}(B_n-b_nV_n\underline{B})'\right\}
+\end{align}
+$$
+
+Completing the squares gives us the following expression
+
+```{=tex}
+\begin{align}
+p(B_+,B_0|Y,X) &\propto |\det(B_0)|^{T+\underline{\nu}-N} \exp \left\{-\frac{1}{2} \sum_{n=1}^N (B_n-b_nV_n\bar{B})\bar{\Omega}^{-1}(B_n-b_nV_n\bar{B})'+b_nV_n\bar{S}^{-1}V_n'b_n'\right\}
+\end{align}
+```
+Where the posterior distribution is then given by:
+
+```{=tex}
+\begin{align}
+p(B_+,B_0|Y,X) &\sim \mathcal{NGN}(\bar{B},\bar{\Omega},\bar{S},\bar{\nu})\\
+\bar{\Omega}&=\left[XX'+\underline{\Omega}^{-1}\right]^{-1}\\
+\bar{B}&=\left[YX'+\underline{B\Omega}^{-1}\right]\bar{\Omega}\\
+\bar{S}&=\left[YY'+\underline{S}^{-1}+\underline{B\Omega}^{-1}\underline{B}'-\bar{B}\bar{\Omega}^{-1}\bar{B}'\right]^{-1}\\
+\bar{\nu}&= T+\underline{\nu}
+\end{align}
+```
+Having formally stated the kernel of the basic model an outline of the
+Gibbs sampler can be provided.
+
+## Gibbs sampler and normalization
+
+Given the Natural-conjugate prior distribution as already outlined above
+the sampler for the contemporaneous relations ship matrix $B_0$ is drawn
+row-by-row from the full conditional distributions given by:
+\begin{gather*}
+    p(b_n | Y, X, b_1, \dots, b_{n-1}, b_{n+1}, \dots, b_N) 
+\end{gather*} Starting from this, the posterior sample
+$\{b_1^{(s)},\dots, b_N^{(s)}\}^{S}_{s=1}$ can be computed.
+
+The gibbs sampler for
+$b_n^{(s)} \sim p(b_n | Y, X, b_1, \dots, b_{n-1}, b_{n+1}, \dots, b_N)$
+is computed by following the algorithm proposed by Waggoner & Zha 2003:
+
+-   $U_n = \text{chol}\Big(\bar{\nu}\Big(V_n\bar{S}^{-1}V_n'\Big)^{-1}\Big)$
+    where $U_n$ is a $r_n\times r_n$ matrix, with $r_n$ being the
+    $n^{th}$ row.
+
+```{=html}
+<!-- -->
+```
+-    $w = [B_{0[-n.]}^{(s)}]$ where $w$ is a $1 \times N$ matrix 
+
+-   $w_1 = wV_n'U_n'\cdot \Big( wV_n'U_n'V_nU_nw'\Big)^{\frac{1}{2}}$
+    where $w_1$ is a $1 \times r_n $ vector
+
+-   $W_n=\begin{pmatrix} w_1' & w_{1\perp}' \end{pmatrix}$ where $W_n$
+    is a matrix of dimensions $r_n \times r_n$
+
+We now construct the matrix $\underset{1 \times r_n}{\alpha_n}$. This is
+done by drawing the first element of the matrix starting with:
+
+-   $u \sim N(0_{\nu+1},{\bar{\nu}^{-1}I_{\nu+1}})$
+
+-   Additionally setting $$\alpha_{n[\cdot 1]} = \begin{cases}
+        \sqrt{u'u} \text{ with probability 0.5}\\
+        -\sqrt{u'u} \text{ with probability 0.5}
+    \end{cases}$$ The remaining $r_n-1$ elements of $\alpha_n$ can be
+    drawn from $N(0_{r_n-1},\bar{\nu}^{-1}I_{r_n-1})$, after which the
+    draw of the full conditional distribution of $b_n$ can be computed
+    by $b_n^{(s)}\alpha_nW_nU_n$.
+
+Having computed the posterior sample, we must now normalize the sample
+as this ensures that we have found a unique maximum. The normalization
+is done by considering a normalisation of each draw from the posterior
+distribution of $B_0^{(s)}$. Introducing a set of diagonal normalizing
+matrices $\underset{N\times N}{Q_i}, i\in 1, \dots, 2^N$, with diagonal
+elements set to either 1 or -1, the distance between $Q_iB_0^{(s)}$ and
+$\hat{B_0}$, where the latter term is the estimated matrix of the
+contemporaneous effects can be derived. The distance is given by:
+\begin{equation*}
+    d \Big[Q_i B_{0}^{(s)}-\hat{B_{0}}^{-1'} | (\hat{B_0}' \hat{B_{0}})^{-1}\Big]
+\end{equation*} Having found the $i$ minimizing the distance,
+$Q_{i*}B_0^{(s)}$, we can apply direct sampling determining $B_+$ from
+its multivariate normal distribution, drawn for each $b_n^{(s)}$.
+
+## Algorithms and functions
+
+The functions below are provided by Tomasz Wozniak and are necessary to
+use the Gibbs sampler to replicate the algorithm provided by Waggoner
+and Zha (2003):
+
+The first function introduced computes an orthogonal complement matrix
+to X which is used in the following rgn-function.
+
+```{r firstfunc}
+#| echo: true
+#| message: false
+#| warning: false
+
+orthogonal.complement.matrix.TW = function(x){
+  N     = dim(x)
+  tmp   = qr.Q(qr(x, tol = 1e-10),complete=TRUE)
+  out   = as.matrix(tmp[,(N[2]+1):N[1]])
+  return(out)
+}
+```
+
+The function **rgn()** simulates draws for the unrestricted elements of
+the contemporaneous relationships matrix of the structural model from a
+generalized normal distribution
+
+```{r secfunc}
+#| echo: true
+#| message: false
+#| warning: false
+rgn             = function(n,S.inv,nu,V,B0.initial){
+  # n     - a positive integer, the number of draws to be sampled
+  # S     - an NxN positive definite matrix, a parameter of the generalized-normal distribution
+  # nu    - a positive scalar, degrees of freedom parameter
+  # V     - an N-element list, with fixed matrices
+  # B0.initial - an NxN matrix, of initial values of the parameters
+  N             = nrow(B0.initial)
+  no.draws      = n
+  
+  B0            = array(NA, c(N,N,no.draws))
+  B0.aux        = B0.initial
+  
+  for (i in 1:no.draws){
+    for (n in 1:N){
+      rn            = nrow(V[[n]])
+      Un            = chol(nu*solve(V[[n]]%*%S.inv%*%t(V[[n]])))
+      w             = t(orthogonal.complement.matrix.TW(t(B0.aux[-n,])))
+      w1            = w %*% t(V[[n]]) %*% t(Un) / sqrt(as.numeric(w %*% t(V[[n]]) %*% t(Un) %*% Un %*% V[[n]] %*% t(w)))
+      if (rn>1){
+        Wn          = cbind(t(w1),orthogonal.complement.matrix.TW(t(w1)))
+      } else {
+        Wn          = w1
+      }
+      alpha         = rep(NA,rn)
+      u             = rmvnorm(1,rep(0,nu+1),(1/nu)*diag(nu+1))
+      alpha[1]      = sqrt(as.numeric(u%*%t(u)))
+      if (runif(1)<0.5){
+        alpha[1]    = -alpha[1]
+      }
+      if (rn>1){
+        alpha[2:rn] = rmvnorm(1,rep(0,nrow(V[[n]])-1),(1/nu)*diag(rn-1))
+      }
+      bn            = alpha %*% Wn %*% Un
+      B0.aux[n,]    = bn %*% V[[n]]
+    }
+    B0[,,i]         = B0.aux
+  }
+  
+  return(B0)
+}
+```
+
+The third function used for the algorithm normalizes the matrix of the
+contemporaneous effects.
+
+```{r thridfunc}
+#| echo: true
+#| message: false
+#| warning: false
+normalization.wz2003  = function(B0,B0.hat.inv, Sigma.inv, diag.signs){
+  # B0        - an NxN matrix, to be normalized
+  # B0.hat    - an NxN matrix, a normalized matrix
+  
+  N                 = nrow(B0)
+  K                 = 2^N
+  distance          = rep(NA,K)
+  for (k in 1:K){
+    B0.tmp.inv      = solve(diag(diag.signs[k,]) %*% B0)
+    distance[k]     = sum(
+      unlist(
+        lapply(1:N,
+               function(n){
+                 t(B0.tmp.inv - B0.hat.inv)[n,] %*%Sigma.inv %*% t(B0.tmp.inv - B0.hat.inv)[n,]
+               }
+        )))
+  }
+  B0.out            = diag(diag.signs[which.min(distance),]) %*% B0
+  
+  return(B0.out)
+}
+```
+
+The following function normalizes the output from the rgn function,
+ensuring that we are in a unique equilibrium, as discussed above.
+
+```{r fourthfunc}
+#| echo: true
+#| message: false
+#| warning: false
+normalize.Gibbs.output.parallel          = function(B0.posterior,B0.hat){
+  # B0.posterior  - a list, output from function rgn
+  # B0.hat        - an NxN matrix, a normalized matrix
+  
+  N                 = nrow(B0.hat)
+  K                 = 2^N
+  
+  B0.hat.inv        = solve(B0.hat)
+  Sigma.inv         = t(B0.hat)%*%B0.hat
+  
+  diag.signs        = matrix(NA,2^N,N)
+  for (n in 1:N){
+    diag.signs[,n]  = kronecker(c(-1,1),rep(1,2^(n-1)))
+  }
+  
+  B0.posterior.n    = mclapply(1:dim(B0.posterior)[3],function(i){
+    normalization.wz2003(B0=B0.posterior[,,i],B0.hat.inv, Sigma.inv, diag.signs)
+  },mc.cores=1
+  )
+  B0.posterior.n  = simplify2array(B0.posterior.n)
+  
+  return(B0.posterior.n)
+}
+```
+
+Lastly we need a function simulating the draws of the multivariate
+normal distribution of the autoregressive slope matrix.
+
+```{r fifthfunc}
+#| echo: true
+#| message: false
+#| warning: false
+rnorm.ngn       = function(B0.posterior,B,Omega){
+  # B0.posterior  - a list, output from function rgn
+  # B             - an NxK matrix, a parameter determining the mean of the multivariate conditionally normal distribution given B0
+  # Omega         - a KxK positive definite matrix, a covariance matrix of the multivariate normal distribution
+  
+  N             = nrow(B)
+  K             = ncol(B)
+  no.draws      = dim(B0.posterior)[3]
+  L             = t(chol(Omega))
+  
+  Bp.posterior  = lapply(1:no.draws,function(i){
+    Bp          = matrix(NA, N, K)
+    for (n in 1:N){
+      Bp[n,]    = as.vector(t(B0.posterior[n,,i] %*% B) + L%*%rnorm(K))
+    }
+    return(Bp)
+  })
+  Bp.posterior  = simplify2array(Bp.posterior)
+  return(Bp.posterior)
+}
+```
+
+Now having introduced the functions applied throughout the Gibbs
+sampler, the artificial data can be generated and the:
+
+```{r AD}
+#| echo: true
+#| message: false
+#| warning: false
+n       <- 1000
+
+x0      <- c(0, 0, 0)
+x       <- matrix(1, n, 3)
+x[1,]   <- x0
+
+cov_mat <- diag(3)
+
+for (i in 3:n) {
+  x[i,] <- rmvnorm(1, x[i-1,], cov_mat)
+}
+
+p  = 1
+Y  = x[(1+p):n,]
+X  = matrix(1,nrow(Y),1)
+for (i in 1:p){
+  X  = cbind(X,Y[(p+1):n-i,])
+}
+
+N       = ncol(Y)
+Y       = t(Y)
+X       = t(X)
+```
+
+Before running the algorithm we need the set the priors according to the
+baseline model, aforementioned, and impose the required exclusionary
+restrictions, which in this model will be done by following a recursive
+scheme.
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+
+# set the priors
+kappa1  = .1       # Autoregressive slope shrinkage
+kappa2  = 10       # Constant term shrinkage
+kappa0  = 10       # Contemporaneous effects shrinkage
+
+priors  = list(
+  B     = cbind(rep(0,N), diag(N), matrix(0, N, (p-1)*N)),
+  Omega = diag(c(kappa2,kappa1*((1:p)^(-2))%x%rep(1,N))),
+  # Omega = diag(c(kappa2,kappa1*rep(1,N*p))),
+  S     = kappa0*diag(N),
+  nu    = N
+)
+
+#Exclusions (can be changed to different exclusions then cholesky) 
+FF.V           = vector("list",N)
+for (n in 1:N){
+  FF.V[[n]]   = cbind(diag(n),matrix(0,n,N-n))
+}
+
+# The B0.initial is used as an initial matrix used in the Gibbs sampler
+B0.initial = matrix(0,N,N)
+for (n in 1:N){
+  unrestricted    = apply(FF.V[[n]],2,sum)==1
+  B0.initial[n,unrestricted] = rnorm(sum(unrestricted))
+}
+```
+
+The function for Gibbs sampler of the baseline model can be found below:
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+
+## Gibbs sampler for posterior simulations ##
+Gibbs.sampler.base <- function(p,Y,X,priors,S1,S2, FF.V, B0.initial){
+  
+  N       = nrow(Y)
+  p       = 1 # calculate from X and Y (K and N)
+  K       = 1+N*p
+  S1      = S1
+  S2      = S2
+  
+  B0.posterior    <- array(NA,c(N,N,(S1+S2)))
+  Bp.posterior    <- array(NA,c(N,(1+N*p),(S1+S2)))  
+  
+  for (s in 1:(S1+S2)){
+    
+    # Computing posterior parameters
+    Omega.inv      = solve(priors$Omega)
+    Omega.post.inv = X%*%t(X) + Omega.inv
+    Omega.post     = solve(Omega.post.inv)
+    B.post         = (Y%*%t(X) + priors$B%*%Omega.inv) %*% Omega.post
+    S.post         = solve(Y%*%t(Y) + solve(priors$S) + priors$B%*%Omega.inv%*%t(priors$B) - B.post%*%Omega.post.inv%*%t(B.post) )
+    nu.post        = ncol(Y) + priors$nu
+    
+    # Use B0.initial for first iteration, otherwise the latest draw from B0.posterior
+    if (s==1) {
+      B0.s = B0.initial
+    } else {
+      B0.s = B0.posterior[,,s-1]
+    }
+    
+    # sampling one draw B0 from the posterior distribution using Gibbs  
+    # rgn.function samples from a random conditional generalized normal distribution
+    B0.tmp                  = rgn(n=1, S=S.post, nu=nu.post, V=FF.V, B0.initial=B0.s)
+    B0.posterior[,,s]       = B0.tmp[,,1]
+    
+    # sample one draw B+ from the normal conditional posterior
+    Bp.tmp              = rnorm.ngn(B0.tmp, B=B.post,Omega=Omega.post)
+    Bp.posterior[,,s]   = Bp.tmp[,,1]
+  }
+  # END OF GIBBS 
+  #Discard first S1 draws
+  B0.posterior <- B0.posterior[,,(S1+1):(S1+S2)]
+  Bp.posterior <- Bp.posterior[,,(S1+1):(S1+S2)]
+  
+  #normalisation of B0.posterior and Bp.posterior
+  B0.hat             = diag(sign(diag(B0.tmp[,,1]))) %*% B0.tmp[,,1]
+  
+  B0.posterior.N    <- array(NA,c(N,N,S2))
+  Bp.posterior.N    <- array(NA,c(N,(1+N*p),S2))
+  
+  for (s in 1:S2){
+    B0.posteror.N.tmp      =  normalize.Gibbs.output.parallel(B0.posterior,B0.hat=B0.hat)
+    B0.posterior.N[,,s]    = B0.posteror.N.tmp[,,1]
+    Bp.posterior.N[,,s]    = B0.posterior.N[,,s]%*%solve(B0.posterior[,,s])%*%Bp.posterior[,,s]
+  }
+  
+  return(list(B0.posterior.N = round(apply(B0.posterior.N, 1:2, mean),4),
+              Bp.posterior.N = round(apply(Bp.posterior.N, 1:2, mean),4)))
+}
+```
+
+```{r baseline show}
+#| echo: false
+#| message: false
+#| warning: false
+# Run Basic function
+Basics = Gibbs.sampler.base(p=1,Y=Y,X=X,priors=priors,S1=300,S2=700, FF.V=FF.V, B0.initial=B0.initial)
+Basics 
+
+```
+
+The results indicates that the exclusion restrictions, which in this
+case is modelled by a recursive structure is implemented on the
+structural matrix as illustrated in the former section, However it is
+also noticeable, that the posterior mean of the constant term, which is
+found in the first column of matrix $B_+$ is not completely zero, as
+well as the remaining part cannot be identified as an identity matrix.
+This might be due to problems in the algorithm or in the functions
+supplied. Nevertheless, this will be investigating before the final
+submission.
+
+## Extended model
+
+In order to improve the estimation of the parameters, it is standard in
+bayesian econometrics to estimate the hyper-parameters contrary to
+setting them to fixed values as in the case of the basic model.
+Estimating the hyper-parameters is often done to improve the model, and
+is demonstrated to have a lot of power in terms of the overall
+likelihood of the model, as demonstrated in Chan (2022).
+
+The extension proposed in this research paper is therefore to estimate
+$\kappa_0$ and $\kappa_+$, where $\kappa_+$ contains the shrinkage of
+the constant term as well as the shrinkage of the slope of the
+autoregressive parameters, and $\kappa_0$ is the shrinkage of the
+structural matrix.
+
+In the extended model, the natural-conjugate prior is given by, where we
+note, that the hyper-parameters follows an Inverse-gamma-2 distribution:
+
+```{=tex}
+\begin{align}
+p(B_+,B_0|Y,X) &\propto L(B_+,B_0|Y,X)p(B_+,B_0|\kappa_0,\kappa_+)p(\kappa_0)p(\kappa_+)\\
+\end{align}
+```
+```{=tex}
+\begin{align}
+p(\kappa_0|\underline{s}_{\kappa_0},\underline{\nu}_{\kappa_0}) &\sim \mathcal{IG}2(\underline{s}_{\kappa_0},\underline{\nu}_{\kappa_0})\\
+p(\kappa_+|\underline{s}_{\kappa_+},\underline{\nu}_{\kappa_+}) &\sim \mathcal{IG}2(\underline{s}_{\kappa_+},\underline{\nu}_{\kappa_+})
+\end{align}
+```
+Now finding an expression for the Full-conditional posterior of
+$\kappa_0$, we can write this as:
+
+```{=tex}
+\begin{align}
+p(\kappa_0|Y,X,B_0,B_+,\kappa_+) &\propto p(B_0|\kappa_0)p(\kappa_0)\\
+&\propto \prod_{n=1}^N\kappa_0^{\frac{r_n}{2}}\exp \left\{  -\frac{1}{2}\sum_{n=1}^N b_nV_n(\kappa_0 I_{r_n})^{-1}V_n'b_n'\right\}\kappa_0^{-\frac{\underline{\nu}_{\kappa_0}+2}{2}}\exp \left\{  -\frac{1}{2} \frac{\underline{s}_{\kappa_0}}{\kappa_0}\right\}\\
+&\propto \prod_{n=1}^N\kappa_0^{\frac{r_n}{2}} \exp \left\{  -\frac{1}{2}\frac{1}{\kappa_0}\sum_{n=1}^N b_nV_n I_{r_n}V_n'b_n'\right\}\kappa_0^{-\frac{\underline{\nu}_{\kappa_0}+2}{2}}\exp \left\{  -\frac{1}{2} \frac{\underline{s}_{\kappa_0}}{\kappa_0}\right\}
+\end{align}
+```
+where we have used that that $\underline{S}=\kappa_0I_N$ and that
+$b_n|\kappa_0 \sim \mathcal{N}(0,\kappa_0(V_nV_n')^{-1})=\mathcal{N}_{r_n}(0_{r_n},\kappa_0I_{r_n})$.
+Thus by collecting the terms accordingly, we are able to determine the
+full conditional posterior, given by the shape parameter,
+$\bar{S_{\kappa_0}}$, and the degrees of freedom,
+$\bar{\nu}_{\kappa_0}$:
+
+```{=tex}
+\begin{align}
+p(\kappa_0|Y,X,B_0,B_+,\kappa_+) &\propto \kappa_0^{-\frac{\bar{\nu}_{\kappa_0}+2}{2}} \exp \left\{ -\frac{1}{2}\frac{\bar{s}_{\kappa_0}}{\kappa_0} \right\}\\
+\bar{s}_{\kappa_0} &= \underline{s}_{\kappa_0}+\sum_{n=1}^N b_nV_nI_{r_n}V_n'b_n'\\
+\bar{\nu}_{\kappa_0} &= \underline{\nu}_{\kappa_0}+\sum_{n=1}^N r_n
+\end{align}
+```
+Doing the same excercise for $\kappa_+$ gives us and expression for the
+full-conditional posterior:
+
+```{=tex}
+\begin{align}
+p(\kappa_+|Y,X,B_0,B_+,\kappa_0) &\propto p(B_+|B_0,\kappa_+)p(\kappa_+)\\
+&\propto \kappa_+^{\frac{K}{2}}\exp \left\{-\frac{1}{2}\frac{1}{\kappa_+} \sum_{n=1}^N (B_n-b_nV_n\underline{B})\underline{\Omega}^{-1}(B_n-b_nV_n\underline{B})'\right\}\kappa_+^{-\frac{\underline{\nu}_{\kappa_+}+2}{2}}\exp \left\{  -\frac{1}{2} \frac{\underline{s}_{\kappa_+}}{\kappa_+}\right\}
+\end{align}
+```
+where we have used that
+$B_n|b_n,\kappa_+ \sim \mathcal{N}_{N+1}(b_nV_n\underline{B},\kappa_+\Omega)$
+
+Following the aforementioned arguments, the posterior parameters can be
+expressed as:
+
+```{=tex}
+\begin{align}
+p(\kappa_+|Y,X,B_0,B_+,\kappa_0) &\propto \kappa_+^{-\frac{\bar{\nu}_{\kappa_+}+2}{2}} \exp \left\{ -\frac{1}{2}\frac{\bar{s}_{\kappa_+}}{\kappa_+} \right\}\\
+\bar{s}_{\kappa_+} &= \underline{s}_{\kappa_+}+\sum_{n=1}^N (B_n-b_nV_n\underline{B})\underline{\Omega}^{-1}(B_n-b_nV_n\underline{B})'\\
+\bar{\nu}_{\kappa_+} &= \underline{\nu}_{\kappa_+}+NK
+\end{align}
+```
+Turning to the implementation of the extension we can by following the
+derivations outlined above write the priors of the extended model as
+below
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+
+### Setting new priors
+priors   = list(
+  B        = cbind(rep(0,N), diag(N), matrix(0, N, (p-1)*N)),
+  Omega    = diag(c(10,((1:p)^(-2))%x%rep(1,N))),
+  S        = diag(N),
+  nu       = N,
+  S.kappa0  = 0,
+  nu.kappa0 = 0,
+  S.kappa1  = 1,
+  nu.kappa1 = 1
+)
+
+```
+
+The function for Gibbs sampler of the extended model can be found below:
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+
+
+# The B0.initial is used as an initial matrix used in the Gibbs sampler
+B0.initial = matrix(0,N,N)
+for (n in 1:N){
+  unrestricted    = apply(FF.V[[n]],2,sum)==1
+  B0.initial[n,unrestricted] = rnorm(sum(unrestricted))
+}
+
+
+## Gibbs sampler for posterior simulations ##
+Gibbs.sampler.extended <- function(p,Y,X,priors,S1,S2, FF.V, B0.initial){
+  
+  N       = nrow(Y)
+  p       = 1 # calculate from X and Y (K and N)
+  K       = 1+N*p
+  S1      = S1
+  S2      = S2
+  
+  kappa0          <- rep(NA, S1 + S2)
+  kappa1          <- rep(NA, S1 + S2)
+  B0.posterior    <- array(NA,c(N,N,(S1+S2)))
+  Bp.posterior    <- array(NA,c(N,(1+N*p),(S1+S2)))  
+  
+  kappa0[1] <- 1
+  kappa1[1] <- 1 
+  
+  for (s in 1:(S1+S2)){
+    
+    # Computing posterior parameters
+    # Only Omega, B and S depend on kappa1
+    
+    Omega.inv      = solve(priors$Omega)
+    Omega.post.inv = X%*%t(X) + (1/kappa1[s])*Omega.inv
+    Omega.post     = solve(Omega.post.inv)
+    B.post         = (Y%*%t(X) + priors$B%*%((1/kappa1[s])*Omega.inv)) %*% Omega.post
+    S.post         = solve(Y%*%t(Y) + (1/kappa0[s])*solve(priors$S) + priors$B%*%((1/kappa1[s])*Omega.inv)%*%t(priors$B) - B.post%*%Omega.post.inv%*%t(B.post) )
+    nu.post        = ncol(Y) + priors$nu
+    
+    # Use B0.initial for first iteration, otherwise the latest draw from B0.posterior
+    
+    if (s==1) {
+      B0.s = B0.initial
+    } else {
+      B0.s = B0.posterior[,,s-1]
+    }
+    
+    # sampling one draw B0 from the posterior distribution using Gibbs  
+    # rgn.function samples from a random conditional generalized normal distribution
+    
+    B0.tmp                  = rgn(n=1, S=S.post, nu=nu.post, V=FF.V, B0.initial=B0.s)
+    B0.posterior[,,s]       = B0.tmp[,,1]
+    
+    # sample one draw B+ from the normal conditional posterior
+    Bp.tmp              = rnorm.ngn(B0.tmp, B=B.post,Omega=Omega.post)
+    Bp.posterior[,,s]   = Bp.tmp[,,1]
+    
+    #compute posterior for the shrinkage parameter S.kappa and nu.
+    
+    S.kappa0.post   = priors$S.kappa0
+    for (i in 1:N){
+      S.kappa0.post = S.kappa0.post + sum(B0.posterior[i,,s]^2)
+    }
+    # S.kappa.post = sum(priors$S.kappa + (B0.posterior[i,,s]-priors$B[i,])%*%Omega.inv%*%t(B0.posterior[i,,s]-priors$B[i,]))
+    
+    # nu.kappa0.post  = priors$nu.kappa0 + i #change outside of loop count number rows (otherwise make as a sum of i's)
+    nu.kappa0.post  = priors$nu.kappa0 + N*(p*N+1)
+    
+    S.kappa1.post   = priors$S.kappa1
+    for (i in 1:N){
+      S.kappa1.post = S.kappa1.post + (Bp.posterior[i,,s]- B0.posterior[i,,s]%*%priors$B)%*%Omega.inv%*%t(Bp.posterior[i,,s]-B0.posterior[i,,s]%*%priors$B)
+    }
+    # S.kappa.post = sum(priors$S.kappa + (B0.posterior[i,,s]-priors$B[i,])%*%Omega.inv%*%t(B0.posterior[i,,s]-priors$B[i,]))
+    
+    nu.kappa1.post  = priors$nu.kappa1 + N*(p*N+1) 
+    
+    
+    #Draw kappa0 and kappa1 from IG2
+    if (s != S1+S2) {
+      kappa0[s+1]    = S.kappa0.post / rchisq(1, df=nu.kappa0.post) 
+      kappa1[s+1]    = S.kappa1.post / rchisq(1, df=nu.kappa1.post) 
+    }
+  }
+  
+  #Discard first S1 draws
+  
+  B0.posterior <- B0.posterior[,,(S1+1):(S1+S2)]
+  Bp.posterior <- Bp.posterior[,,(S1+1):(S1+S2)]
+  kappa0       <- kappa0[(S1+1):(S1+S2)]
+  kappa1       <- kappa1[(S1+1):(S1+S2)]
+  
+  #normalisation of B0.posterior and Bp.posterior
+  
+  B0.hat             = diag(sign(diag(B0.tmp[,,1]))) %*% B0.tmp[,,1]
+  # t(chol((nu.post-N)*S.post))# normalisation using this B0.hat should work
+  
+  B0.posterior.N    <- array(NA,c(N,N,S2))
+  Bp.posterior.N    <- array(NA,c(N,(1+N*p),S2))
+  
+  for (s in 1:S2){
+    B0.posteror.N.tmp      =  normalize.Gibbs.output.parallel(B0.posterior,B0.hat=B0.hat)
+    B0.posterior.N[,,s]    = B0.posteror.N.tmp[,,1]
+    Bp.posterior.N[,,s]    = B0.posterior.N[,,s]%*%solve(B0.posterior[,,s])%*%Bp.posterior[,,s]
+  }
+  
+  return(list(Bp.posterior.N      = Bp.posterior.N,
+              B0.posterior.N.mean = round(apply(B0.posterior.N, 1:2, mean),4),
+              Bp.posterior.N.mean = round(apply(Bp.posterior.N, 1:2, mean),4),
+              kappa0 = mean(kappa0),
+              kappa1 = mean(kappa1)))
+}
+```
+
+```{r extended show}
+#| echo: false
+#| message: false
+#| warning: false
+# Run Basic function
+extended = Gibbs.sampler.extended(p=1,Y=Y,X=X,priors=priors,S1=300,S2=700, FF.V=FF.V, B0.initial=B0.initial)
+
+extended$B0.posterior.N.mean
+extended$Bp.posterior.N.mean
+extended$kappa0
+extended$kappa1
+```
+
+As for the basic model, it is evident that their seems to be some
+problems with the code, as we are not able to estimate the parameters
+accordingly to the simulated data, nevertheless, the estimation of the
+hyper parameters are in general in line with the literature, where the
+hyper parameter of the shrinkage of the structural matrix, $\kappa_0$ is
+generally estimated to be small, while $\kappa_+(\kappa_1)$ is very
+large. Additionally, in order to check the convergence of the model, the
+estimated parameters in the diagonal of the matrix $B_+$ is plotted
+against the number of draws. If the convergence is complete, the graph
+should be considered white noise. However, as this is not the case, I
+once again re-estate the fact that there might be some problems with the
+code. The convergence is plotted in the graph below, where one should
+keep in mind that $A=B_+$. The estimations are computed using 1000
+draws, where 300 of the first observations are discarded.
+
+```{r showing converge plot}
+#| echo: false
+#| message: false
+#| warning: false
+# Plotting convergence
+par(mfrow=c(1,3))
+plot(extended$Bp.posterior.N[,2,][1,],type='l',col="#660099",ylab="",xlab="",main=expression(A[21]), lwd = 0.1)
+plot(extended$Bp.posterior.N[,3,][2,],type='l',col="#CC66CC",ylab="",xlab="",main=expression(A[22]), lwd = 0.1)
+plot(extended$Bp.posterior.N[,4,][3,],type='l',col="#CC66CC",ylab="",xlab="",main=expression(A[22]), lwd = 0.1)
+
+```
 
 # References {.unnumbered}
-Kilian, L., \& L¨utkepohl, H. (2017). Structural Vector Autoregressive Analysis. Cambridge
-University Press.
 
-Jenser, J., \& Pedersen, J. (2019). Macro financial linkages in a SVAR model with application to Denmark, Working paper (no. 134) 
+Kilian, L., & L¨utkepohl, H. (2017). Structural Vector Autoregressive
+Analysis. Cambridge University Press.
 
-Giannone, D., Lenza, M., & Primiceri, G. E. (2019). Priors for the long run. Journal of
-the American Statistical Association, 114 (526), 565–580
+Jenser, J., & Pedersen, J. (2019). Macro financial linkages in a SVAR
+model with application to Denmark, Working paper (no. 134)
+
+Giannone, D., Lenza, M., & Primiceri, G. E. (2019). Priors for the long
+run. Journal of the American Statistical Association, 114 (526),
+565--580
+
+Waggoner, D. F., & Zha, T. (2003). A gibbs sampler for structural vector
+autoregressions. Journal of Economic Dynamics and Control, 28 (2),
+349--366.
+
+Chan, J. C. (2022). Asymmetric conjugate priors for large bayesian vars.
+Quantitative Economics, 13 (3), 1145--1169.
