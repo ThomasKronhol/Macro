@@ -335,17 +335,15 @@ p(B_+,B_0|Y,X) &amp;\sim \mathcal{NGN}(\bar{B},\bar{\Omega},\bar{S},\bar{\nu})\\
 <!-- -->
 <ul>
 <li><p><span class="math inline">\(w = [B_{0[-n.]}^{(s)}]\)</span> where <span class="math inline">\(w\)</span> is a <span class="math inline">\(1 \times N\)</span> matrix</p></li>
-<li><p><span class="math inline">\(w_1 = wV_n'U_n'\cdot \Big( wV_n'U_n'V_nU_nw'\Big)^{\frac{1}{2}}\)</span> where <span class="math inline">\(w_1\)</span> is a $1 r_n $ vector</p></li>
+<li><p><span class="math inline">\(w_1 = wV_n'U_n'\cdot \Big( wV_n'U_n'V_nU_nw'\Big)^{\frac{1}{2}}\)</span> where <span class="math inline">\(w_1\)</span> is a <span class="math inline">\(1 \times r_n\)</span> vector</p></li>
 <li><p><span class="math inline">\(W_n=\begin{pmatrix} w_1' &amp; w_{1\perp}' \end{pmatrix}\)</span> where <span class="math inline">\(W_n\)</span> is a matrix of dimensions <span class="math inline">\(r_n \times r_n\)</span></p></li>
 </ul>
 <p>We now construct the matrix <span class="math inline">\(\underset{1 \times r_n}{\alpha_n}\)</span>. This is done by drawing the first element of the matrix starting with:</p>
 <ul>
 <li><p><span class="math inline">\(u \sim N(0_{\nu+1},{\bar{\nu}^{-1}I_{\nu+1}})\)</span></p></li>
-<li><p>Additionally setting <span class="math display">\[\alpha_{n[\cdot 1]} = \begin{cases}
-    \sqrt{u'u} \text{ with probability 0.5}\\
-    -\sqrt{u'u} \text{ with probability 0.5}
-\end{cases}\]</span> The remaining <span class="math inline">\(r_n-1\)</span> elements of <span class="math inline">\(\alpha_n\)</span> can be drawn from <span class="math inline">\(N(0_{r_n-1},\bar{\nu}^{-1}I_{r_n-1})\)</span>, after which the draw of the full conditional distribution of <span class="math inline">\(b_n\)</span> can be computed by <span class="math inline">\(b_n^{(s)}\alpha_nW_nU_n\)</span>.</p></li>
+<li><p>Additionally setting <span class="math inline">\(\alpha_{n[\cdot 1]} = \begin{cases}\sqrt{u'u} \text{ with probability 0.5}\\-\sqrt{u'u} \text{ with probability 0.5}\end{cases}\)</span></p></li>
 </ul>
+<p>The remaining <span class="math inline">\(r_n-1\)</span> elements of <span class="math inline">\(\alpha_n\)</span> can be drawn from <span class="math inline">\(N(0_{r_n-1},\bar{\nu}^{-1}I_{r_n-1})\)</span>, after which the draw of the full conditional distribution of <span class="math inline">\(b_n\)</span> can be computed by <span class="math inline">\(b_n^{(s)}\alpha_nW_nU_n\)</span>.</p>
 <p>Having computed the posterior sample, we must now normalize the sample as this ensures that we have found a unique maximum. The normalization is done by considering a normalisation of each draw from the posterior distribution of <span class="math inline">\(B_0^{(s)}\)</span>. Introducing a set of diagonal normalizing matrices <span class="math inline">\(\underset{N\times N}{Q_i}, i\in 1, \dots, 2^N\)</span>, with diagonal elements set to either 1 or -1, the distance between <span class="math inline">\(Q_iB_0^{(s)}\)</span> and <span class="math inline">\(\hat{B_0}\)</span>, where the latter term is the estimated matrix of the contemporaneous effects can be derived. The distance is given by: <span class="math display">\[\begin{equation*}
     d \Big[Q_i B_{0}^{(s)}-\hat{B_{0}}^{-1'} | (\hat{B_0}' \hat{B_{0}})^{-1}\Big]
 \end{equation*}\]</span> Having found the <span class="math inline">\(i\)</span> minimizing the distance, <span class="math inline">\(Q_{i*}B_0^{(s)}\)</span>, we can apply direct sampling determining <span class="math inline">\(B_+\)</span> from its multivariate normal distribution, drawn for each <span class="math inline">\(b_n^{(s)}\)</span>.</p>
@@ -596,15 +594,15 @@ p(B_+,B_0|Y,X) &amp;\sim \mathcal{NGN}(\bar{B},\bar{\Omega},\bar{S},\bar{\nu})\\
 <div class="cell-output cell-output-stdout">
 <pre><code>$B0.posterior.N
         [,1]    [,2]   [,3]
-[1,] 10.2511  0.0000 0.0000
-[2,] -0.0922 10.3927 0.0000
-[3,] -0.1946 -0.0640 9.8108
+[1,] 10.2741  0.0000 0.0000
+[2,]  0.0639 10.0466 0.0000
+[3,] -0.0980  0.0175 9.8205
 
 $Bp.posterior.N
-        [,1]    [,2]    [,3]   [,4]
-[1,] -0.0037 10.2511 -0.0001 0.0000
-[2,] -0.0047 -0.0923 10.3926 0.0002
-[3,]  0.0020 -0.1945 -0.0642 9.8105</code></pre>
+        [,1]    [,2]    [,3]    [,4]
+[1,] -0.0024 10.2741  0.0000  0.0000
+[2,]  0.0038  0.0640 10.0466 -0.0002
+[3,] -0.0013 -0.0983  0.0176  9.8203</code></pre>
 </div>
 </div>
 <p>The results indicates that the exclusion restrictions, which in this case is modelled by a recursive structure is implemented on the structural matrix as illustrated in the former section, However it is also noticeable, that the posterior mean of the constant term, which is found in the first column of matrix <span class="math inline">\(B_+\)</span> is not completely zero, as well as the remaining part cannot be identified as an identity matrix. This might be due to problems in the algorithm or in the functions supplied. Nevertheless, this will be investigating before the final submission.</p>
@@ -774,24 +772,24 @@ p(\kappa_+|Y,X,B_0,B_+,\kappa_0) &amp;\propto \kappa_+^{-\frac{\bar{\nu}_{\kappa
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>        [,1]    [,2]    [,3]
-[1,] 12.5935  0.0000  0.0000
-[2,] -0.1931 12.3863  0.0000
-[3,] -0.2326 -0.1149 12.0303</code></pre>
+[1,] 27.7108  0.0000  0.0000
+[2,]  1.3097 26.9936  0.0000
+[3,]  1.3187 -0.5858 27.2274</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>        [,1]    [,2]    [,3]    [,4]
-[1,] -0.1115 12.5949  0.0022  0.0053
-[2,] -0.1040 -0.1960 12.3854  0.0102
-[3,]  0.0269 -0.2318 -0.1163 12.0260</code></pre>
+<pre><code>       [,1]    [,2]    [,3]    [,4]
+[1,] 4.8956 27.5668  0.1201 -0.4267
+[2,] 1.7087  1.3758 27.0028 -0.0763
+[3,] 0.7203  0.9954 -0.3104 26.9100</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 3719.56</code></pre>
+<pre><code>[1] 1397072</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.08901379</code></pre>
+<pre><code>[1] 0.0920722</code></pre>
 </div>
 </div>
-<p>As for the basic model, it is evident that their seems to be some problems with the code, as we are not able to estimate the parameters accordingly to the simulated data, nevertheless, the estimation of the hyper parameters are in general in line with the literature, where the hyper parameter of the shrinkage of the structural matrix, <span class="math inline">\(\kappa_0\)</span> is generally estimated to be small, while <span class="math inline">\(\kappa_+(\kappa_1)\)</span> is very large. Additionally, in order to check the convergence of the model, the estimated parameters in the diagonal of the matrix <span class="math inline">\(B_+\)</span> is plotted against the number of draws. If the convergence is complete, the graph should be considered white noise. However, as this is not the case, I once again re-estate the fact that there might be some problems with the code. The convergence is plotted in the graph below, where one should keep in mind that <span class="math inline">\(A=B_+\)</span>. The estimations are computed using 1000 draws, where 300 of the first observations are discarded.</p>
+<p>As for the basic model, it is evident that their seems to be some problems with the code, as we are not able to estimate the parameters accordingly to the simulated data, nevertheless, the estimation of the hyper parameters are in general in line with the literature, where the hyper parameter of the shrinkage of the structural matrix, <span class="math inline">\(\kappa_0\)</span> is generally estimated to be small, while <span class="math inline">\(\kappa_+(\kappa_1)\)</span> is very large. Additionally, in order to check the convergence of the model, the estimated parameters in the diagonal of the matrix <span class="math inline">\(B_+\)</span> is plotted against the number of draws. If the convergence is complete, the graph should be considered white noise. However, as this is not the case, I once again re-estate the fact that there might be some problems with the code. The convergence is plotted in the graph below. The estimations are computed using 1000 draws, where 300 of the first observations are discarded.</p>
 <div class="cell">
 <div class="cell-output-display">
 <p><img src="index_files/figure-html/showing converge plot-1.png" class="img-fluid" width="672"></p>

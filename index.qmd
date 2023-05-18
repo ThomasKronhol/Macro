@@ -530,7 +530,7 @@ is computed by following the algorithm proposed by Waggoner & Zha 2003:
 -    $w = [B_{0[-n.]}^{(s)}]$ where $w$ is a $1 \times N$ matrix 
 
 -   $w_1 = wV_n'U_n'\cdot \Big( wV_n'U_n'V_nU_nw'\Big)^{\frac{1}{2}}$
-    where $w_1$ is a $1 \times r_n $ vector
+    where $w_1$ is a $1 \times r_n$ vector
 
 -   $W_n=\begin{pmatrix} w_1' & w_{1\perp}' \end{pmatrix}$ where $W_n$
     is a matrix of dimensions $r_n \times r_n$
@@ -540,13 +540,12 @@ done by drawing the first element of the matrix starting with:
 
 -   $u \sim N(0_{\nu+1},{\bar{\nu}^{-1}I_{\nu+1}})$
 
--   Additionally setting $$\alpha_{n[\cdot 1]} = \begin{cases}
-        \sqrt{u'u} \text{ with probability 0.5}\\
-        -\sqrt{u'u} \text{ with probability 0.5}
-    \end{cases}$$ The remaining $r_n-1$ elements of $\alpha_n$ can be
-    drawn from $N(0_{r_n-1},\bar{\nu}^{-1}I_{r_n-1})$, after which the
-    draw of the full conditional distribution of $b_n$ can be computed
-    by $b_n^{(s)}\alpha_nW_nU_n$.
+-   Additionally setting $\alpha_{n[\cdot 1]} = \begin{cases}\sqrt{u'u} \text{ with probability 0.5}\\-\sqrt{u'u} \text{ with probability 0.5}\end{cases}$ 
+
+The remaining $r_n-1$ elements of $\alpha_n$ can be
+drawn from $N(0_{r_n-1},\bar{\nu}^{-1}I_{r_n-1})$, after which the
+draw of the full conditional distribution of $b_n$ can be computed
+by $b_n^{(s)}\alpha_nW_nU_n$.
 
 Having computed the posterior sample, we must now normalize the sample
 as this ensures that we have found a unique maximum. The normalization
@@ -1121,9 +1120,7 @@ estimated parameters in the diagonal of the matrix $B_+$ is plotted
 against the number of draws. If the convergence is complete, the graph
 should be considered white noise. However, as this is not the case, I
 once again re-estate the fact that there might be some problems with the
-code. The convergence is plotted in the graph below, where one should
-keep in mind that $A=B_+$. The estimations are computed using 1000
-draws, where 300 of the first observations are discarded.
+code. The convergence is plotted in the graph below. The estimations are computed using 1000 draws, where 300 of the first observations are discarded.
 
 ```{r showing converge plot}
 #| echo: false
@@ -1131,9 +1128,9 @@ draws, where 300 of the first observations are discarded.
 #| warning: false
 # Plotting convergence
 par(mfrow=c(1,3))
-plot(extended$Bp.posterior.N[,2,][1,],type='l',col="#660099",ylab="",xlab="",main=expression(A[21]), lwd = 0.1)
-plot(extended$Bp.posterior.N[,3,][2,],type='l',col="#CC66CC",ylab="",xlab="",main=expression(A[22]), lwd = 0.1)
-plot(extended$Bp.posterior.N[,4,][3,],type='l',col="#CC66CC",ylab="",xlab="",main=expression(A[22]), lwd = 0.1)
+plot(extended$Bp.posterior.N[,2,][1,],type='l',col="#660099",ylab="",xlab="",main=expression(B_[12]), lwd = 0.1)
+plot(extended$Bp.posterior.N[,3,][2,],type='l',col="#CC66CC",ylab="",xlab="",main=expression(B_[23]), lwd = 0.1)
+plot(extended$Bp.posterior.N[,4,][3,],type='l',col="#CC66CC",ylab="",xlab="",main=expression(B_[34]), lwd = 0.1)
 
 ```
 
