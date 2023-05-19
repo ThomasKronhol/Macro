@@ -594,15 +594,15 @@ p(B_+,B_0|Y,X) &amp;\sim \mathcal{NGN}(\bar{B},\bar{\Omega},\bar{S},\bar{\nu})\\
 <div class="cell-output cell-output-stdout">
 <pre><code>$B0.posterior.N
         [,1]    [,2]   [,3]
-[1,] 10.2741  0.0000 0.0000
-[2,]  0.0639 10.0466 0.0000
-[3,] -0.0980  0.0175 9.8205
+[1,] 10.2577  0.0000 0.0000
+[2,] -0.0175 10.0593 0.0000
+[3,] -0.0091 -0.1004 9.6206
 
 $Bp.posterior.N
-        [,1]    [,2]    [,3]    [,4]
-[1,] -0.0024 10.2741  0.0000  0.0000
-[2,]  0.0038  0.0640 10.0466 -0.0002
-[3,] -0.0013 -0.0983  0.0176  9.8203</code></pre>
+        [,1]    [,2]    [,3]   [,4]
+[1,] -0.0004 10.2578  0.0002 0.0002
+[2,]  0.0000 -0.0175 10.0597 0.0001
+[3,] -0.0027 -0.0092 -0.1007 9.6206</code></pre>
 </div>
 </div>
 <p>The results indicates that the exclusion restrictions, which in this case is modelled by a recursive structure is implemented on the structural matrix as illustrated in the former section, However it is also noticeable, that the posterior mean of the constant term, which is found in the first column of matrix <span class="math inline">\(B_+\)</span> is not completely zero, as well as the remaining part cannot be identified as an identity matrix. This might be due to problems in the algorithm or in the functions supplied. Nevertheless, this will be investigating before the final submission.</p>
@@ -770,26 +770,29 @@ p(\kappa_+|Y,X,B_0,B_+,\kappa_0) &amp;\propto \kappa_+^{-\frac{\bar{\nu}_{\kappa
 <span id="cb12-109"><a href="#cb12-109" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>        [,1]    [,2]    [,3]
-[1,] 27.7108  0.0000  0.0000
-[2,]  1.3097 26.9936  0.0000
-[3,]  1.3187 -0.5858 27.2274</code></pre>
+
 </div>
+<div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code>       [,1]    [,2]    [,3]    [,4]
-[1,] 4.8956 27.5668  0.1201 -0.4267
-[2,] 1.7087  1.3758 27.0028 -0.0763
-[3,] 0.7203  0.9954 -0.3104 26.9100</code></pre>
+<pre><code>         [,1]     [,2]     [,3]
+[1,] 184.1800   0.0000   0.0000
+[2,]  -4.3581 188.5495   0.0000
+[3,]   4.0062  -6.0304 183.5802</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 1397072</code></pre>
+<pre><code>        [,1]     [,2]     [,3]     [,4]
+[1,]  0.1221 184.1666  -0.0552  -0.0036
+[2,] -0.0397  -4.3926 188.4721  -0.0334
+[3,]  0.0165   4.0136  -5.9804 183.6359</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.0920722</code></pre>
+<pre><code>[1] 1271.438</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.09363688</code></pre>
 </div>
 </div>
-<p>As for the basic model, it is evident that their seems to be some problems with the code, as we are not able to estimate the parameters accordingly to the simulated data, nevertheless, the estimation of the hyper parameters are in general in line with the literature, where the hyper parameter of the shrinkage of the structural matrix, <span class="math inline">\(\kappa_0\)</span> is generally estimated to be small, while <span class="math inline">\(\kappa_+(\kappa_1)\)</span> is very large. Additionally, in order to check the convergence of the model, the estimated parameters in the diagonal of the matrix <span class="math inline">\(B_+\)</span> is plotted against the number of draws. If the convergence is complete, the graph should be considered white noise. However, as this is not the case, I once again re-estate the fact that there might be some problems with the code. The convergence is plotted in the graph below. The estimations are computed using 1000 draws, where 300 of the first observations are discarded.</p>
+<p>In the matrices found above, the first matrix is <span class="math inline">\(B_0\)</span>, the second is <span class="math inline">\(B_+\)</span>, the first parameter is <span class="math inline">\(\kappa_0\)</span> while the last parameter is <span class="math inline">\(\kappa_+\)</span>. As for the basic model, it is evident that their seems to be some problems with the code, as we are not able to estimate the parameters accordingly to the simulated data, nevertheless, the estimation of the hyper parameters are in general in line with the literature, where the hyper parameter of the shrinkage of the structural matrix, <span class="math inline">\(\kappa_0\)</span> is generally estimated to be large, while <span class="math inline">\(\kappa_+(\kappa_1)\)</span> is very small. Additionally, in order to check the convergence of the model, the estimated parameters in the diagonal of the matrix <span class="math inline">\(B_+\)</span> is plotted against the number of draws. If the convergence is complete, the graph should be considered white noise. However, as this is not the case, I once again re-estate the fact that there might be some problems with the code. The convergence is plotted in the graph below. The estimations are computed using 1000 draws, where 300 of the first observations are discarded.</p>
 <div class="cell">
 <div class="cell-output-display">
 <p><img src="index_files/figure-html/showing converge plot-1.png" class="img-fluid" width="672"></p>

@@ -1102,20 +1102,26 @@ Gibbs.sampler.extended <- function(p,Y,X,priors,S1,S2, FF.V, B0.initial){
 #| warning: false
 # Run Basic function
 extended = Gibbs.sampler.extended(p=1,Y=Y,X=X,priors=priors,S1=300,S2=700, FF.V=FF.V, B0.initial=B0.initial)
+```
 
+```{r extended dontshow}
+#| echo: false
+#| message: false
+#| warning: false
+# Run Basic function
 extended$B0.posterior.N.mean
 extended$Bp.posterior.N.mean
 extended$kappa0
 extended$kappa1
 ```
-
+In the matrices found above, the first matrix is $B_0$, the second is $B_+$, the first parameter is $\kappa_0$ while the last parameter is $\kappa_+$.
 As for the basic model, it is evident that their seems to be some
 problems with the code, as we are not able to estimate the parameters
 accordingly to the simulated data, nevertheless, the estimation of the
 hyper parameters are in general in line with the literature, where the
 hyper parameter of the shrinkage of the structural matrix, $\kappa_0$ is
-generally estimated to be small, while $\kappa_+(\kappa_1)$ is very
-large. Additionally, in order to check the convergence of the model, the
+generally estimated to be large, while $\kappa_+(\kappa_1)$ is very
+small. Additionally, in order to check the convergence of the model, the
 estimated parameters in the diagonal of the matrix $B_+$ is plotted
 against the number of draws. If the convergence is complete, the graph
 should be considered white noise. However, as this is not the case, I
