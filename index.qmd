@@ -603,10 +603,12 @@ rgn             = function(n,S.inv,nu,V,B0.initial){
   B0            = array(NA, c(N,N,no.draws))
   B0.aux        = B0.initial
   
-  for (i in 1:no.draws){
+for (i in 1:no.draws){
     for (n in 1:N){
       rn            = nrow(V[[n]])
-      Un            = chol(nu*solve(V[[n]]%*%S.inv%*%t(V[[n]])))
+      SS_tmp        = nu*solve(V[[n]]%*%S.inv%*%t(V[[n]]))
+      SS_tmp        = 0.5 * (SS_tmp + t(SS_tmp))
+      Un            = chol(SS_tmp)
       w             = t(orthogonal.complement.matrix.TW(t(B0.aux[-n,])))
       w1            = w %*% t(V[[n]]) %*% t(Un) / sqrt(as.numeric(w %*% t(V[[n]]) %*% t(Un) %*% Un %*% V[[n]] %*% t(w)))
       if (rn>1){
@@ -731,26 +733,20 @@ sampler, the artificial data can be generated and the:
 #| echo: true
 #| message: false
 #| warning: false
-n       <- 1000
+T       = 1000
+N       = 3
+p       = 1
+K       = 1 + N * p
 
-x0      <- c(0, 0, 0)
-x       <- matrix(1, n, 3)
-x[1,]   <- x0
+y       = apply(matrix(rnorm(T * N), ncol = N), 2, cumsum)
 
-cov_mat <- diag(3)
-
-for (i in 3:n) {
-  x[i,] <- rmvnorm(1, x[i-1,], cov_mat)
-}
-
-p  = 1
-Y  = x[(1+p):n,]
-X  = matrix(1,nrow(Y),1)
+# create Y and X
+############################################################
+Y       = y[(p+1):nrow(y),]
+X       = matrix(1,nrow(Y),1)
 for (i in 1:p){
-  X  = cbind(X,Y[(p+1):n-i,])
+  X     = cbind(X,y[((p+1):nrow(y))-i,])
 }
-
-N       = ncol(Y)
 Y       = t(Y)
 X       = t(X)
 ```
@@ -801,61 +797,64 @@ The function for Gibbs sampler of the baseline model can be found below:
 
 ## Gibbs sampler for posterior simulations ##
 Gibbs.sampler.base <- function(p,Y,X,priors,S1,S2, FF.V, B0.initial){
-  
+
   N       = nrow(Y)
   p       = 1 # calculate from X and Y (K and N)
   K       = 1+N*p
   S1      = S1
   S2      = S2
-  
-  B0.posterior    <- array(NA,c(N,N,(S1+S2)))
-  Bp.posterior    <- array(NA,c(N,(1+N*p),(S1+S2)))  
-  
+  kappa0 = 10
+  kappa1 = 10
+  kappa2 = 0.1
+
+    B0.posterior    <- array(NA,c(N,N,(S1+S2)))
+  Bp.posterior    <- array(NA,c(N,(1+N*p),(S1+S2)))
+
   for (s in 1:(S1+S2)){
-    
+
     # Computing posterior parameters
     Omega.inv      = solve(priors$Omega)
     Omega.post.inv = X%*%t(X) + Omega.inv
     Omega.post     = solve(Omega.post.inv)
     B.post         = (Y%*%t(X) + priors$B%*%Omega.inv) %*% Omega.post
-    S.post         = solve(Y%*%t(Y) + solve(priors$S) + priors$B%*%Omega.inv%*%t(priors$B) - B.post%*%Omega.post.inv%*%t(B.post) )
+    S.post         = Y%*%t(Y) + solve(priors$S) + priors$B%*%Omega.inv%*%t(priors$B) - B.post%*%Omega.post.inv%*%t(B.post) 
     nu.post        = ncol(Y) + priors$nu
-    
+
     # Use B0.initial for first iteration, otherwise the latest draw from B0.posterior
     if (s==1) {
       B0.s = B0.initial
     } else {
       B0.s = B0.posterior[,,s-1]
     }
-    
-    # sampling one draw B0 from the posterior distribution using Gibbs  
+
+    # sampling one draw B0 from the posterior distribution using Gibbs
     # rgn.function samples from a random conditional generalized normal distribution
-    B0.tmp                  = rgn(n=1, S=S.post, nu=nu.post, V=FF.V, B0.initial=B0.s)
+    B0.tmp                  = rgn(n=1, S.inv=S.post, nu=nu.post, V=FF.V, B0.initial=B0.s)
     B0.posterior[,,s]       = B0.tmp[,,1]
-    
+
     # sample one draw B+ from the normal conditional posterior
     Bp.tmp              = rnorm.ngn(B0.tmp, B=B.post,Omega=Omega.post)
     Bp.posterior[,,s]   = Bp.tmp[,,1]
   }
-  # END OF GIBBS 
+  # END OF GIBBS
   #Discard first S1 draws
   B0.posterior <- B0.posterior[,,(S1+1):(S1+S2)]
   Bp.posterior <- Bp.posterior[,,(S1+1):(S1+S2)]
-  
+
   #normalisation of B0.posterior and Bp.posterior
   B0.hat             = diag(sign(diag(B0.tmp[,,1]))) %*% B0.tmp[,,1]
-  
+
   B0.posterior.N    <- array(NA,c(N,N,S2))
   Bp.posterior.N    <- array(NA,c(N,(1+N*p),S2))
-  
+
+  B0.posteror.N.tmp      =  normalize.Gibbs.output.parallel(B0.posterior,B0.hat=B0.hat)
   for (s in 1:S2){
-    B0.posteror.N.tmp      =  normalize.Gibbs.output.parallel(B0.posterior,B0.hat=B0.hat)
-    B0.posterior.N[,,s]    = B0.posteror.N.tmp[,,1]
+    B0.posterior.N[,,s]    = B0.posteror.N.tmp[,,s]
     Bp.posterior.N[,,s]    = B0.posterior.N[,,s]%*%solve(B0.posterior[,,s])%*%Bp.posterior[,,s]
   }
-  
-  return(list(B0.posterior.N = round(apply(B0.posterior.N, 1:2, mean),4),
-              Bp.posterior.N = round(apply(Bp.posterior.N, 1:2, mean),4)))
+
+  return(list(B0.posterior.N = B0.posterior.N,
+              Bp.posterior.N = Bp.posterior.N))
 }
 ```
 
@@ -864,20 +863,17 @@ Gibbs.sampler.base <- function(p,Y,X,priors,S1,S2, FF.V, B0.initial){
 #| message: false
 #| warning: false
 # Run Basic function
-Basics = Gibbs.sampler.base(p=1,Y=Y,X=X,priors=priors,S1=300,S2=700, FF.V=FF.V, B0.initial=B0.initial)
-Basics 
-
+Basics = Gibbs.sampler.base(p=1,Y=Y,X=X,priors=priors,S1=500,S2=2500, FF.V=FF.V, B0.initial=B0.initial)
+"B_0"
+round(apply(Basics$B0.posterior.N, 1:2, mean),3)
+"B_+"
+round(apply(Basics$Bp.posterior.N, 1:2, mean),3)
 ```
 
 The results indicates that the exclusion restrictions, which in this
 case is modelled by a recursive structure is implemented on the
-structural matrix as illustrated in the former section, However it is
-also noticeable, that the posterior mean of the constant term, which is
-found in the first column of matrix $B_+$ is not completely zero, as
-well as the remaining part cannot be identified as an identity matrix.
-This might be due to problems in the algorithm or in the functions
-supplied. Nevertheless, this will be investigating before the final
-submission.
+structural matrix,$B_0$, as illustrated in the former section. We see that the posterior mean of the constant term, which is found in the first column of matrix $B_+$ is close to zero, as
+well as the remaining part can be identified as an identity matrix.
 
 ## Extended model
 
@@ -969,8 +965,8 @@ priors   = list(
   Omega    = diag(c(10,((1:p)^(-2))%x%rep(1,N))),
   S        = diag(N),
   nu       = N,
-  S.kappa0  = 0,
-  nu.kappa0 = 0,
+  S.kappa0  = 1,
+  nu.kappa0 = 1,
   S.kappa1  = 1,
   nu.kappa1 = 1
 )
@@ -1013,13 +1009,11 @@ Gibbs.sampler.extended <- function(p,Y,X,priors,S1,S2, FF.V, B0.initial){
   for (s in 1:(S1+S2)){
     
     # Computing posterior parameters
-    # Only Omega, B and S depend on kappa1
-    
     Omega.inv      = solve(priors$Omega)
     Omega.post.inv = X%*%t(X) + (1/kappa1[s])*Omega.inv
     Omega.post     = solve(Omega.post.inv)
     B.post         = (Y%*%t(X) + priors$B%*%((1/kappa1[s])*Omega.inv)) %*% Omega.post
-    S.post         = solve(Y%*%t(Y) + (1/kappa0[s])*solve(priors$S) + priors$B%*%((1/kappa1[s])*Omega.inv)%*%t(priors$B) - B.post%*%Omega.post.inv%*%t(B.post) )
+    S.post         = Y%*%t(Y) + (1/kappa0[s])*solve(priors$S) + priors$B%*%((1/kappa1[s])*Omega.inv)%*%t(priors$B) - B.post%*%Omega.post.inv%*%t(B.post) 
     nu.post        = ncol(Y) + priors$nu
     
     # Use B0.initial for first iteration, otherwise the latest draw from B0.posterior
@@ -1033,23 +1027,20 @@ Gibbs.sampler.extended <- function(p,Y,X,priors,S1,S2, FF.V, B0.initial){
     # sampling one draw B0 from the posterior distribution using Gibbs  
     # rgn.function samples from a random conditional generalized normal distribution
     
-    B0.tmp                  = rgn(n=1, S=S.post, nu=nu.post, V=FF.V, B0.initial=B0.s)
+    B0.tmp                  = rgn(n=1, S.inv=S.post, nu=nu.post, V=FF.V, B0.initial=B0.s)
     B0.posterior[,,s]       = B0.tmp[,,1]
     
     # sample one draw B+ from the normal conditional posterior
     Bp.tmp              = rnorm.ngn(B0.tmp, B=B.post,Omega=Omega.post)
     Bp.posterior[,,s]   = Bp.tmp[,,1]
     
-    #compute posterior for the shrinkage parameter S.kappa and nu.
+    #compute posterior for the shrinkage parameter S.kappa and nu
+    S.kappa0.post = priors$S.kappa0 + sum(B0.posterior[,,s]^2)
     
-    S.kappa0.post   = priors$S.kappa0
-    for (i in 1:N){
-      S.kappa0.post = S.kappa0.post + sum(B0.posterior[i,,s]^2)
-    }
     # S.kappa.post = sum(priors$S.kappa + (B0.posterior[i,,s]-priors$B[i,])%*%Omega.inv%*%t(B0.posterior[i,,s]-priors$B[i,]))
     
     # nu.kappa0.post  = priors$nu.kappa0 + i #change outside of loop count number rows (otherwise make as a sum of i's)
-    nu.kappa0.post  = priors$nu.kappa0 + N*(p*N+1)
+    nu.kappa0.post  = priors$nu.kappa0 + sum(unlist(lapply(FF.V, nrow)))
     
     S.kappa1.post   = priors$S.kappa1
     for (i in 1:N){
@@ -1082,17 +1073,16 @@ Gibbs.sampler.extended <- function(p,Y,X,priors,S1,S2, FF.V, B0.initial){
   B0.posterior.N    <- array(NA,c(N,N,S2))
   Bp.posterior.N    <- array(NA,c(N,(1+N*p),S2))
   
-  for (s in 1:S2){
     B0.posteror.N.tmp      =  normalize.Gibbs.output.parallel(B0.posterior,B0.hat=B0.hat)
+  for (s in 1:S2){
     B0.posterior.N[,,s]    = B0.posteror.N.tmp[,,1]
     Bp.posterior.N[,,s]    = B0.posterior.N[,,s]%*%solve(B0.posterior[,,s])%*%Bp.posterior[,,s]
   }
   
-  return(list(Bp.posterior.N      = Bp.posterior.N,
-              B0.posterior.N.mean = round(apply(B0.posterior.N, 1:2, mean),4),
-              Bp.posterior.N.mean = round(apply(Bp.posterior.N, 1:2, mean),4),
-              kappa0 = mean(kappa0),
-              kappa1 = mean(kappa1)))
+  return(list(B0.posterior.N = B0.posterior.N,
+              Bp.posterior.N = Bp.posterior.N,
+              kappa0 = kappa0,
+              kappa1 = kappa1))
 }
 ```
 
@@ -1101,42 +1091,41 @@ Gibbs.sampler.extended <- function(p,Y,X,priors,S1,S2, FF.V, B0.initial){
 #| message: false
 #| warning: false
 # Run Basic function
-extended = Gibbs.sampler.extended(p=1,Y=Y,X=X,priors=priors,S1=300,S2=700, FF.V=FF.V, B0.initial=B0.initial)
+extended = Gibbs.sampler.extended(p=1,Y=Y,X=X,priors=priors,S1=500,S2=2500, FF.V=FF.V, B0.initial=B0.initial)
 ```
 
 ```{r extended dontshow}
 #| echo: false
 #| message: false
 #| warning: false
-# Run Basic function
-extended$B0.posterior.N.mean
-extended$Bp.posterior.N.mean
-extended$kappa0
-extended$kappa1
+# Run extended function
+"B_0"
+round(apply(extended$B0.posterior.N, 1:2, mean),3)
+"B_+"
+round(apply(extended$Bp.posterior.N, 1:2, mean),3)
+"Kappa_0"
+mean(extended$kappa0)
+"Kappa_+"
+mean(extended$kappa1)
 ```
-In the matrices found above, the first matrix is $B_0$, the second is $B_+$, the first parameter is $\kappa_0$ while the last parameter is $\kappa_+$.
-As for the basic model, it is evident that their seems to be some
-problems with the code, as we are not able to estimate the parameters
-accordingly to the simulated data, nevertheless, the estimation of the
+As for the basic model, the parameters are estimated according to the simulated data, with the exclusion restrictions imposed and an identity matrix in $B_+$, as well as the mean of the constant term is zero. The estimation of the
 hyper parameters are in general in line with the literature, where the
 hyper parameter of the shrinkage of the structural matrix, $\kappa_0$ is
-generally estimated to be large, while $\kappa_+(\kappa_1)$ is very
+generally estimated to be larger, compared to $\kappa_+$ which is relatively
 small. Additionally, in order to check the convergence of the model, the
 estimated parameters in the diagonal of the matrix $B_+$ is plotted
-against the number of draws. If the convergence is complete, the graph
-should be considered white noise. However, as this is not the case, I
-once again re-estate the fact that there might be some problems with the
-code. The convergence is plotted in the graph below. The estimations are computed using 1000 draws, where 300 of the first observations are discarded.
+against the number of draws. We see that the convergence is complete, as the graph
+should can be considered white noise. The estimations are computed using 3000 draws, where 500 of the first observations are discarded.
 
 ```{r showing converge plot}
 #| echo: false
 #| message: false
 #| warning: false
 # Plotting convergence
-par(mfrow=c(1,3))
-plot(extended$Bp.posterior.N[,2,][1,],type='l',col="#660099",ylab="",xlab="",main=expression(B_[12]), lwd = 0.1)
-plot(extended$Bp.posterior.N[,3,][2,],type='l',col="#CC66CC",ylab="",xlab="",main=expression(B_[23]), lwd = 0.1)
-plot(extended$Bp.posterior.N[,4,][3,],type='l',col="#CC66CC",ylab="",xlab="",main=expression(B_[34]), lwd = 0.1)
+par(mfrow=c(3,1))
+plot(extended$Bp.posterior.N[,2,][1,],type='l',col="#660099",ylab="",xlab="",main=expression(B[+12]), lwd = 0.1)
+plot(extended$Bp.posterior.N[,3,][2,],type='l',col="#CC66CC",ylab="",xlab="",main=expression(B[+23]), lwd = 0.1)
+plot(extended$Bp.posterior.N[,4,][3,],type='l',col="#CC66CC",ylab="",xlab="",main=expression(B[+34]), lwd = 0.1)
 
 ```
 
