@@ -52,7 +52,7 @@ economic climate. As central banks have started raising rates world
 wide, the financial condition index enables us to get a complete view of
 the effects that this might have by looking at financial markets, credit
 and liquidity while including the shadow banking system. The analysis is
-somewhat inspired by Pedersen and Roager (2019), who finds that easing
+somewhat inspired by @JensenandRoager2019, who finds that easing
 financial conditions had a positive impact on the Danish economy using
 quarterly data.
 
@@ -97,7 +97,8 @@ channel, which could then affect the real economy through lower demand
 for goods or a higher demand for savings. The model therefore includes
 **consumer sentiment** provided by University of Michigan. The variables
 of consumer sentiment will be denoted consumer expectations throughout
-the analysis.
+the analysis. In order to take into account the monetary policy
+response, the **federeal funds rate** has been included.
 
 Lastly, as we are interested in identifying a shock to financial
 conditions, the **National Financial Condition Index (NFCI)** is
@@ -114,6 +115,7 @@ from 01.01.1987 - 01.01.2023. The data is obtained using package
 #| echo: false
 #| message: false
 #| warning: false
+#| results: hide
 
 library(fredr)
 library(ggplot2)
@@ -130,6 +132,7 @@ library(tinytex)
 library(quantmod)
 library(mvtnorm)
 library(MASS)
+library(HDInterval)
 library(parallel)
 
 #Setting up API key from FRED
@@ -139,8 +142,7 @@ start_date <- as.Date("1987-01-01")
 end_date <- as.Date("2023-01-01")
 
 # Define a vector of series IDs
-#timeseries <- c("INDPRO", "CPIAUCSL", "UMCSENT", "TOTCI", "USSTHPI", "NFCI") incl. house prices
-timeseries <- c("INDPRO", "CPIAUCSL", "UMCSENT", "TOTCI", "CSUSHPISA", "NFCI")
+timeseries <- c("INDPRO", "CPIAUCSL","FEDFUNDS", "UMCSENT", "TOTCI", "CSUSHPISA", "NFCI")
 data <- list()
 
 # Retrieve the data for the series and date range ::::: change m to q for quarterly
@@ -161,6 +163,10 @@ cpi$ln_value <- log(cpi$value)
 cpi_ <- cpi[, c("date","ln_value")] 
 tcpi <- xts(cpi_$ln_value, order.by = indp_$date)
 
+FF <- data[["FEDFUNDS"]]
+FF_ <- FF[, c("date","value")]
+tFF <- xts(FF_$value, order.by = indp_$date)
+
 expec <- data[["UMCSENT"]]
 expec_ <- expec[, c("date","value")]
 texpec <- xts(expec_$value, order.by = indp_$date)
@@ -180,8 +186,8 @@ fci_ <- fci[, c("date","value")]
 tfci <- xts(fci_$value, order.by = indp_$date)
 
 #Merging the series into vector Y
-Y = na.omit(merge(tindp, tcpi, texpec, tlend, thp, tfci))
-colnames(Y)<- c("indu", "cpi", "exp", "lend","hp","fci")
+Y = na.omit(merge(tindp, tcpi, tFF, texpec, tlend, thp, tfci))
+colnames(Y)<- c("IP", "CPI","FF", "EXP", "LEND","HP","NFCI")
 
 ```
 
@@ -201,22 +207,27 @@ inf = ggplot(data = Y[,2], aes(x = index(Y[,2]), y = Y[,2])) +
   labs(title = "Consumer price index", x = "Year", y = "Ln(CPI)") +
   theme_minimal()
 
-ex = ggplot(data = Y[,3], aes(x = index(Y[,3]), y = Y[,3])) +
+FF = ggplot(data = Y[,3], aes(x = index(Y[,3]), y = Y[,3])) +
+  geom_line(color = "black") +
+  labs(title = "Federal Funds Rate", x = "Year", y = "Percent") +
+  theme_minimal()
+
+ex = ggplot(data = Y[,4], aes(x = index(Y[,4]), y = Y[,4])) +
   geom_line(color = "black") +
   labs(title = "Consumer Expectations", x = "Year", y = "Index") +
   theme_minimal()
     
-le = ggplot(data = Y[,4], aes(x = index(Y[,4]), y = Y[,4])) +
+le = ggplot(data = Y[,5], aes(x = index(Y[,5]), y = Y[,5])) +
   geom_line(color = "black") +
   labs(title = "Total Lending", x = "Year", y = "Ln(Lending)") +
   theme_minimal()
 
-hou = ggplot(data = Y[,5], aes(x = index(Y[,5]), y = Y[,5])) +
+hou = ggplot(data = Y[,6], aes(x = index(Y[,6]), y = Y[,6])) +
   geom_line(color = "black") +
   labs(title = "House price index", x = "Year", y = "Ln(HP)") +
   theme_minimal()
 
-fincon = ggplot(data = Y[,6], aes(x = index(Y[,6]), y = Y[,6])) +
+fincon = ggplot(data = Y[,7], aes(x = index(Y[,7]), y = Y[,7])) +
   geom_line(color = "black") +
   labs(title = "National Financial Condition index", x = "Year", y = "Index") +
   theme_minimal()
@@ -241,7 +252,9 @@ somewhat visually present.
 #| echo: false
 #| #| message: false
 #| warning: false
-grid.arrange(ip, inf, ex, le, hou, fincon, nrow = 3, ncol = 2)
+#| label: fig-series-plot
+#| fig-cap: "Time Series Plots"
+grid.arrange(ip, inf,FF, ex, le, hou, fincon, nrow = 4, ncol = 2)
 
 ```
 
@@ -256,14 +269,43 @@ unity implying a high degree of memory.
 #| message: false
 #| warning: false
 # Plotting Autocorrelation functions
-par(mfrow=c(2,3))
-a_ip = acf(Y[,1], lag.max = 12, main = "ACF Plot, Industrial production", ylab = "Autocorrelation", type = "correlation")
-a_cpi = acf(Y[,2], lag.max = 12, main = "ACF Plot, Consumer price index", ylab = "Autocorrelation", type = "correlation")
-a_exp = acf(Y[,3], lag.max = 12, main = "ACF Plot, Consumer expectations", ylab = "Autocorrelation", type = "correlation")
-a_le = acf(Y[,4], lag.max = 12, main = "ACF Plot, Total Lending", ylab = "Autocorrelation", type = "correlation")
-a_hou = acf(Y[,5], lag.max = 12, main = "ACF Plot, House price index", ylab = "Autocorrelation", type = "correlation")
-a_fci = acf(Y[,6], lag.max = 12, main = "ACF Plot, NFCI", ylab = "Autocorrelation", type = "correlation")
+ Y = as.ts(Y)
+# par(mfrow=c(4,2))
+# a_ip = acf(Y[,1], lag.max = 12, main = "ACF Plot, Industrial production", ylab = "Autocorrelation", type = "correlation")
+# a_cpi = acf(Y[,2], lag.max = 12, main = "ACF Plot, Consumer price index", ylab = "Autocorrelation", type = "correlation")
+# a_FF = acf(Y[,3], lag.max = 12, main = "ACF Plot, Federal Funds Rate", ylab = "Autocorrelation", type = "correlation")
+# a_exp = acf(Y[,4], lag.max = 12, main = "ACF Plot, Consumer expectations", ylab = "Autocorrelation", type = "correlation")
+# a_le = acf(Y[,5], lag.max = 12, main = "ACF Plot, Total Lending", ylab = "Autocorrelation", type = "correlation")
+# a_hou = acf(Y[,6], lag.max = 12, main = "ACF Plot, House price index", ylab = "Autocorrelation", type = "correlation")
+# a_fci = acf(Y[,7], lag.max = 12, main = "ACF Plot, NFCI", ylab = "Autocorrelation", type = "correlation")
 
+```
+
+```{r ACF}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-acf-plot
+#| fig-cap: "ACF Plots"
+names = c("IP", "CPI","FF", "EXP", "LEND","HP","NFCI")
+par(mfrow=c(4,2), mar=c(2,2,2,2))
+for (j in 1:length(colnames(Y))){
+  acf(Y[,j],main="")
+  title(main = paste(names[j]), line = 1)
+}
+```
+
+```{r PACF}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-pacf-plot
+#| fig-cap: "PACF Plots"
+par(mfrow=c(4,2), mar=c(2,2,2,2))
+for (j in 1:length(colnames(Y))){
+  pacf(Y[,j],main="")
+  title(main = paste(names[j]), line = 1)
+}
 ```
 
 In order to examine the order of integration, an Augmented Dicky Fuller
@@ -279,27 +321,77 @@ of the data being monthly. The results can be found in the table below.
 #| results: hide
 #Doing an ACF test :::::::: change to 6 if HP incl.
 #
+# max_lag = 12
+# adf_ <- list()
+# for (i in 1:6) {
+#   adf_result = adf.test(Y[,i], k = max_lag)
+#   adf_[[i]] <- adf_result
+# }
+# head(adf_)
+# 
+# # View the ADF test results
+# summary(adf_result)
+# 
+# adf_table <- data.frame(Test_Statistic = numeric(length(adf_)), 
+#                         p_value = numeric(length(adf_)), 
+#                         Lags_Used = numeric(length(adf_)))
+# 
+# # Fill in the data frame with the test results
+# for (i in 1:length(adf_)) {
+#   adf_table[i, "Test_Statistic"] = round(adf_[[i]]$statistic,3)
+#   adf_table[i, "p_value"] = round(adf_[[i]]$p.value,3)
+#   adf_table[i, "Lags_Used"] = round(adf_[[i]]$parameter,3)
+# }
+
+```
+
+```{r adftest}
+#| echo: false
+#| message: false
+#| warning: false
+#| results: hide
+
+#ADF test for both levels and first diff
+
 max_lag = 12
 adf_ <- list()
-for (i in 1:6) {
+adf_diff <- list()
+for (i in 1:7) {
   adf_result = adf.test(Y[,i], k = max_lag)
   adf_[[i]] <- adf_result
+  adf_diff_result = adf.test(diff(Y[,i]), k = max_lag) 
+  adf_diff[[i]] <- adf_diff_result
 }
-head(adf_)
 
-# View the ADF test results
-summary(adf_result)
-
-adf_table <- data.frame(Test_Statistic = numeric(length(adf_)), 
+#set up tables
+adf_table_levels <- data.frame(Test_Statistic = numeric(length(adf_)), 
                         p_value = numeric(length(adf_)), 
                         Lags_Used = numeric(length(adf_)))
 
-# Fill in the data frame with the test results
+adf_table_diff <- data.frame(Test_Statistic = numeric(length(adf_diff)), 
+                        p_value = numeric(length(adf_diff)), 
+                        Lags_Used = numeric(length(adf_diff)))
+
 for (i in 1:length(adf_)) {
-  adf_table[i, "Test_Statistic"] = round(adf_[[i]]$statistic,3)
-  adf_table[i, "p_value"] = round(adf_[[i]]$p.value,3)
-  adf_table[i, "Lags_Used"] = round(adf_[[i]]$parameter,3)
+  adf_table_levels[i, "Test_Statistic"] = round(adf_[[i]]$statistic,3)
+  adf_table_levels[i, "p_value"] = round(adf_[[i]]$p.value,3)
+  adf_table_levels[i, "Lags_Used"] = round(adf_[[i]]$parameter,3)
 }
+
+for (i in 1:length(adf_diff)) {
+  adf_table_diff[i, "Test_Statistic"] = round(adf_diff[[i]]$statistic,3)
+  adf_table_diff[i, "p_value"] = round(adf_diff[[i]]$p.value,3)
+  adf_table_diff[i, "Lags_Used"] = round(adf_diff[[i]]$parameter,3)
+}
+
+# Compute tables
+rownames(adf_table_levels) <- c("IP", "CPI", "FF", "EXP","LEND","HP","NFCI")
+colnames(adf_table_levels)<- c("Test statistic", "P-value", "Lags")
+knitr::kable(adf_table_levels, digits = 3)
+
+rownames(adf_table_diff) <- c("\u0394IP", "\u0394CPI", "\u0394FF", "\u0394EXP","\u0394LEND","\u0394HP","\u0394NFCI")
+colnames(adf_table_diff)<- c("Test statistic", "P-value", "Lags")
+knitr::kable(adf_table_diff, digits = 3)
 
 ```
 
@@ -309,20 +401,39 @@ for (i in 1:length(adf_)) {
 #| warning: false
 
 # Print the data frame
-rownames(adf_table)<- c("Industrial Production", "Consumer Price Index", "Consumer Expectations", "Total Lending","House price index","NFCI")
-colnames(adf_table)<- c("Test statistic", "P-value", "Lags")
-print(adf_table)
-
-# Testing for cointegration rank with trend
-#vecm_Y = ca.jo(Y, type = "trace", ecdet = "trend", K = 5, spec = "transitory")
-#summary(vecm_Y) 
+# rownames(adf_table)<- c("Industrial Production", "Consumer Price Index", "Consumer Expectations", "Total Lending","House price index","NFCI")
+# colnames(adf_table)<- c("Test statistic", "P-value", "Lags")
+# print(adf_table)
+#| echo: false
+#| message: false
+#| warning: false
+knitr::kable(adf_table_levels, digits = 3)
 
 ```
 
 As evident from the table we are not able to reject the null hypothesis
 of the presence of a unit root in any of the time series at a 5 pct.
 level of significance, and thus not able to reject the hypothesis of the
-variables being integrated of order 1.
+variables being integrated of order 1. Now, taking the first-difference
+of the series and checking for the possibility of the series being
+integrated of order 2 we see, that it is rejected on a 5 pct. level of
+significance.
+
+```{r test show diff}
+#| echo: false
+#| message: false
+#| warning: false
+
+#| echo: false
+#| message: false
+#| warning: false
+knitr::kable(adf_table_diff, digits = 3)
+
+# Testing for cointegration rank with trend
+#vecm_Y = ca.jo(Y, type = "trace", ecdet = "trend", K = 5, spec = "transitory")
+#summary(vecm_Y) 
+
+```
 
 The order of integration is of particular interest when doing structural
 analysis, given that the shocks to stationary processes can be
@@ -335,7 +446,7 @@ using a Normal-Wishart prior could be sufficient in getting some
 reliable estimates of the shocks. However, one could also use a
 dummy-prior, enabling the econometrician to examine the joint dynamics
 of the time series aforementioned in the long run. This could be done by
-following the work of Giannone et al. (2019).
+following the work of @giannone2019priors.
 
 ## Econometric model and hypothesis
 
@@ -370,13 +481,13 @@ cholesky decompostion will be applied. This implies a recursive
 identification which imposes the $B_0^{-1}$ to be lower triangular. In
 general the ordering of the variables in $y_t$ must be justified using
 economic theory. Nevertheless this research paper follows the ordering
-introduced in Pedersen and Roager (2019), where the variables are
-ordered from slow to fast moving, thus financial variables will be
-ordered in the last, while real output and inflation will be ordered
-first. This might be economically justified by the fact that, even
-though the variables are all monthly, the impact of the financial
-variables to the real economy might take one period, thus no
-contemporaneous effects can be expected.
+introduced in @JensenandRoager2019, where the variables are ordered from
+slow to fast moving, thus financial variables will be ordered in the
+last, while real output and inflation will be ordered first. This might
+be economically justified by the fact that, even though the variables
+are all monthly, the impact of the financial variables to the real
+economy might take one period, thus no contemporaneous effects can be
+expected.
 
 **How to use the structural model and proposed output**
 
@@ -406,7 +517,7 @@ the financial conditions onto economic variables have changed over time.
 ## Estimation procedure and model extensions
 
 In order to estimate the model the model outlined in the previous
-section I follow the algorithm proposed by Waggoner and Zha (2003).
+section I follow the algorithm proposed by @waggoner2003gibbs.
 
 ## Basic Model
 
@@ -418,11 +529,11 @@ we have that the model can be written as follows: \begin{gather}
 B_0y_t= B_+x_t + u_t, \text{ where } u_t \sim N(0,1)
 \end{gather}
 
-$B_0$ is the structural matrix containing the exclusionary
-restrictions. By using that $B_{0[n\cdot]}=b_n\;V_n$ , where $b_n$ is a
-vector of unrestricted elements and $V_n$ is a matrix consisting of only
-ones and zeroes, which ensures that the restrictions are imposed on the
-right elements. The dimension of $b_n$ and $V_n$ is $1\times r_n$ and
+$B_0$ is the structural matrix containing the exclusionary restrictions.
+By using that $B_{0[n\cdot]}=b_n\;V_n$ , where $b_n$ is a vector of
+unrestricted elements and $V_n$ is a matrix consisting of only ones and
+zeroes, which ensures that the restrictions are imposed on the right
+elements. The dimension of $b_n$ and $V_n$ is $1\times r_n$ and
 $r_n\times N$ respectively. This implies that the restrictions will be
 implemented on each row of the structural matrix such that
 $B_0=\begin{bmatrix} b_1V_1 & \dots & b_NV_N \end{bmatrix}'$. Using the
@@ -442,8 +553,8 @@ introduced and given by:
 L(B_+,B_0 | Y, X) \propto |\det(B_0)|^T \exp \left\{-\frac{1}{2} \sum_{n=1}^N (b_nV_nY-B_nX)(b_nV_nY-B_nX)'  \right\}
 \end{align}
 ```
-Now moving on the to the natural-conjugate prior, we know from Waggoner
-and Zha (2003), that this can be represented by a
+Now moving on the to the natural-conjugate prior, we know from
+@waggoner2003gibbs, that this can be represented by a
 normal-generalized-normal-distribution:
 $p(B_+,B_0)\sim \mathcal{NGN}(\underline{B}, \underline{\Omega}, \underline{S}, \underline{\nu})$,
 where:
@@ -518,16 +629,15 @@ $\{b_1^{(s)},\dots, b_N^{(s)}\}^{S}_{s=1}$ can be computed.
 
 The gibbs sampler for
 $b_n^{(s)} \sim p(b_n | Y, X, b_1, \dots, b_{n-1}, b_{n+1}, \dots, b_N)$
-is computed by following the algorithm proposed by Waggoner & Zha 2003:
+is computed by following the algorithm proposed by @waggoner2003gibbs:
 
 -   $U_n = \text{chol}\Big(\bar{\nu}\Big(V_n\bar{S}^{-1}V_n'\Big)^{-1}\Big)$
     where $U_n$ is a $r_n\times r_n$ matrix, with $r_n$ being the
     $n^{th}$ row.
 
-```{=html}
 <!-- -->
-```
--    $w = [B_{0[-n.]}^{(s)}]$ where $w$ is a $1 \times N$ matrix 
+
+-   $w = [B_{0[-n.]}^{(s)}]$ where $w$ is a $1 \times N$ matrix
 
 -   $w_1 = wV_n'U_n'\cdot \Big( wV_n'U_n'V_nU_nw'\Big)^{\frac{1}{2}}$
     where $w_1$ is a $1 \times r_n$ vector
@@ -540,12 +650,13 @@ done by drawing the first element of the matrix starting with:
 
 -   $u \sim N(0_{\nu+1},{\bar{\nu}^{-1}I_{\nu+1}})$
 
--   Additionally setting $\alpha_{n[\cdot 1]} = \begin{cases}\sqrt{u'u} \text{ with probability 0.5}\\-\sqrt{u'u} \text{ with probability 0.5}\end{cases}$ 
+-   Additionally setting
+    $\alpha_{n[\cdot 1]} = \begin{cases}\sqrt{u'u} \text{ with probability 0.5}\\-\sqrt{u'u} \text{ with probability 0.5}\end{cases}$
 
-The remaining $r_n-1$ elements of $\alpha_n$ can be
-drawn from $N(0_{r_n-1},\bar{\nu}^{-1}I_{r_n-1})$, after which the
-draw of the full conditional distribution of $b_n$ can be computed
-by $b_n^{(s)}\alpha_nW_nU_n$.
+The remaining $r_n-1$ elements of $\alpha_n$ can be drawn from
+$N(0_{r_n-1},\bar{\nu}^{-1}I_{r_n-1})$, after which the draw of the full
+conditional distribution of $b_n$ can be computed by
+$b_n^{(s)}\alpha_nW_nU_n$.
 
 Having computed the posterior sample, we must now normalize the sample
 as this ensures that we have found a unique maximum. The normalization
@@ -564,8 +675,8 @@ its multivariate normal distribution, drawn for each $b_n^{(s)}$.
 ## Algorithms and functions
 
 The functions below are provided by Tomasz Wozniak and are necessary to
-use the Gibbs sampler to replicate the algorithm provided by Waggoner
-and Zha (2003):
+use the Gibbs sampler to replicate the algorithm provided by
+@waggoner2003gibbs:
 
 The first function introduced computes an orthogonal complement matrix
 to X which is used in the following rgn-function.
@@ -733,22 +844,22 @@ sampler, the artificial data can be generated and the:
 #| echo: true
 #| message: false
 #| warning: false
-T       = 1000
+T       = 500
 N       = 3
 p       = 1
 K       = 1 + N * p
 
-y       = apply(matrix(rnorm(T * N), ncol = N), 2, cumsum)
+y.sim       = apply(matrix(rnorm(T * N), ncol = N), 2, cumsum)
 
 # create Y and X
 ############################################################
-Y       = y[(p+1):nrow(y),]
-X       = matrix(1,nrow(Y),1)
+Y.sim       = y.sim[(p+1):nrow(y.sim),]
+X.sim       = matrix(1,nrow(Y.sim),1)
 for (i in 1:p){
-  X     = cbind(X,y[((p+1):nrow(y))-i,])
+  X.sim     = cbind(X.sim,y.sim[((p+1):nrow(y.sim))-i,])
 }
-Y       = t(Y)
-X       = t(X)
+Y.sim       = t(Y.sim)
+X.sim       = t(X.sim)
 ```
 
 Before running the algorithm we need the set the priors according to the
@@ -799,7 +910,7 @@ The function for Gibbs sampler of the baseline model can be found below:
 Gibbs.sampler.base <- function(p,Y,X,priors,S1,S2, FF.V, B0.initial){
 
   N       = nrow(Y)
-  p       = 1 # calculate from X and Y (K and N)
+  p       = p # calculate from X and Y (K and N)
   K       = 1+N*p
   S1      = S1
   S2      = S2
@@ -863,7 +974,7 @@ Gibbs.sampler.base <- function(p,Y,X,priors,S1,S2, FF.V, B0.initial){
 #| message: false
 #| warning: false
 # Run Basic function
-Basics = Gibbs.sampler.base(p=1,Y=Y,X=X,priors=priors,S1=500,S2=2500, FF.V=FF.V, B0.initial=B0.initial)
+Basics = Gibbs.sampler.base(p=1,Y=Y.sim,X=X.sim,priors=priors,S1=200,S2=1800, FF.V=FF.V, B0.initial=B0.initial)
 "B_0"
 round(apply(Basics$B0.posterior.N, 1:2, mean),3)
 "B_+"
@@ -872,8 +983,10 @@ round(apply(Basics$Bp.posterior.N, 1:2, mean),3)
 
 The results indicates that the exclusion restrictions, which in this
 case is modelled by a recursive structure is implemented on the
-structural matrix,$B_0$, as illustrated in the former section. We see that the posterior mean of the constant term, which is found in the first column of matrix $B_+$ is close to zero, as
-well as the remaining part can be identified as an identity matrix.
+structural matrix,$B_0$, as illustrated in the former section. We see
+that the posterior mean of the constant term, which is found in the
+first column of matrix $B_+$ is close to zero, as well as the remaining
+part can be identified as an identity matrix.
 
 ## Extended model
 
@@ -882,7 +995,7 @@ bayesian econometrics to estimate the hyper-parameters contrary to
 setting them to fixed values as in the case of the basic model.
 Estimating the hyper-parameters is often done to improve the model, and
 is demonstrated to have a lot of power in terms of the overall
-likelihood of the model, as demonstrated in Chan (2022).
+likelihood of the model, as demonstrated in @chan2022asymmetric.
 
 The extension proposed in this research paper is therefore to estimate
 $\kappa_0$ and $\kappa_+$, where $\kappa_+$ contains the shrinkage of
@@ -993,7 +1106,7 @@ for (n in 1:N){
 Gibbs.sampler.extended <- function(p,Y,X,priors,S1,S2, FF.V, B0.initial){
   
   N       = nrow(Y)
-  p       = 1 # calculate from X and Y (K and N)
+  p       = p # calculate from X and Y (K and N)
   K       = 1+N*p
   S1      = S1
   S2      = S2
@@ -1091,7 +1204,7 @@ Gibbs.sampler.extended <- function(p,Y,X,priors,S1,S2, FF.V, B0.initial){
 #| message: false
 #| warning: false
 # Run Basic function
-extended = Gibbs.sampler.extended(p=1,Y=Y,X=X,priors=priors,S1=500,S2=2500, FF.V=FF.V, B0.initial=B0.initial)
+extended = Gibbs.sampler.extended(p=1,Y=Y.sim,X=X.sim,priors=priors,S1=200,S2=1800, FF.V=FF.V, B0.initial=B0.initial)
 ```
 
 ```{r extended dontshow}
@@ -1108,14 +1221,19 @@ mean(extended$kappa0)
 "Kappa_+"
 mean(extended$kappa1)
 ```
-As for the basic model, the parameters are estimated according to the simulated data, with the exclusion restrictions imposed and an identity matrix in $B_+$, as well as the mean of the constant term is zero. The estimation of the
-hyper parameters are in general in line with the literature, where the
-hyper parameter of the shrinkage of the structural matrix, $\kappa_0$ is
-generally estimated to be larger, compared to $\kappa_+$ which is relatively
-small. Additionally, in order to check the convergence of the model, the
-estimated parameters in the diagonal of the matrix $B_+$ is plotted
-against the number of draws. We see that the convergence is complete, as the graph
-should can be considered white noise. The estimations are computed using 3000 draws, where 500 of the first observations are discarded.
+
+As for the basic model, the parameters are estimated according to the
+simulated data, with the exclusion restrictions imposed and an identity
+matrix in $B_+$, as well as the mean of the constant term is zero. The
+estimation of the hyper parameters are in general in line with the
+literature, where the hyper parameter of the shrinkage of the structural
+matrix, $\kappa_0$ is generally estimated to be larger, compared to
+$\kappa_+$ which is relatively small. Additionally, in order to check
+the convergence of the model, the estimated parameters in the diagonal
+of the matrix $B_+$ is plotted against the number of draws. We see that
+the convergence is complete, as the graph should can be considered white
+noise. The estimations are computed using 2000 draws, where 200 of the
+first observations are discarded. The low number of draws is due to the computational power required. 
 
 ```{r showing converge plot}
 #| echo: false
@@ -1129,21 +1247,367 @@ plot(extended$Bp.posterior.N[,4,][3,],type='l',col="#CC66CC",ylab="",xlab="",mai
 
 ```
 
+## Empirical results
+
+**Identification**
+
+In order for us to do the impulse responses, we first have to implement
+the exclusionary restricitions according to the identification of the
+desired shock. Starting from the structural matrix presented in the
+sections above. The recursive scheme is implemented as presented below:
+
+```{=tex}
+\begin{align}
+        B_0 Y=\begin{bmatrix} b_{11} & 0&0&0&0&0&0 \\
+    b_{21} & b_{22} & 0&0&0&0&0 \\
+    b_{31} & b_{32} & b_{33} &0&0&0 &0 \\
+    b_{41} & b_{42} & b_{43} &b_{44}&0&0&0  \\
+    b_{51} & b_{52} & b_{53} &b_{54}&b_{55}&0&0 \\
+    b_{61} & b_{62} & b_{63} &b_{64}&b_{65}&b_{66}&0\\
+        b_{71} & b_{72} & b_{73} &b_{74}&b_{75}&b_{76}&b_{77}\\
+    \end{bmatrix}\begin{bmatrix} IP \\ CPI \\ FF \\ Exp \\ Lend \\ HP \\ NFCI \end{bmatrix}
+\end{align}
+```
+The ordering follows the arguments of @JensenandRoager2019, where
+financial variables, which can be considered fast moving are ordered
+before the variables representing the real economy. One should note that
+the Federal funds rate has been placed almost in the middle of the
+system. The placement is supposed to act as a standard Taylor rule,
+where we see, that the central bank adjusts its rates according to
+movements in prices and output, which are not allowed to affect these
+variables contemporaneously, according to an outside lag of monetary
+policy transmission of one month. We see from the structural matrix,
+that NFCI is placed last, which implies that the variable it self are
+allowed to respond to shocks from the other variables contemporaneously,
+however, a shock from financial conditions will only have an effect on
+the remaining variables in the subsequent month, this seems reasonable,
+as one might expect the other variables such as expectations, rates and
+house prices might need some time to adjust according to the new
+information.
+
+**Impulse Response Functions**
+
+Starting from a general VAR we know that we can write it in its Vector
+Moving Average respresentation (VMA) assuming that the stationarity conditions is fulfilled. Furthermore, introducing the
+matrix $J=\left[I_n\quad 0_{N\times N(p-1)}\right]$, and that we
+consider a structural model, the model can expressed as follows:
+
+```{=tex}
+\begin{align}
+y_t &=Bu_t+J\textbf{A}J'Bu_{t-1}+J\textbf{A}^2J'Bu_{t-2}+...\\
+&=\Theta_0u_t+\Theta_1u_{t-1}+\Theta_2u_{t-2}+...\\
+\end{align}
+```
+where $\frac{\partial y_{t+i}}{\partial u_t}=\Theta_i=\theta_iB$ is the IRF. The
+IRFs are computed using the following function:
+
+```{r computing IRFs}
+irf <- function(p,B0.posterior,Bp.posterior,h,shock){
+  
+#variable number for shock. 
+np = shock  
+h = h  
+p = p
+N = dim(B0.posterior)[2]
+S2 <- dim(B0.posterior)[3]
+K  <- 1+N*p
+  
+mcxs1  = "#05386B"
+mcxs2  = "#379683"
+mcxs3  = "#5CDB95"
+mcxs4  = "#8EE4AF"
+mcxs5  = "#EDF5E1"
+purple = "#b02442"
+            
+mcxs1.rgb   = col2rgb(mcxs1)
+mcxs1.shade1= rgb(mcxs1.rgb[1],mcxs1.rgb[2],mcxs1.rgb[3], alpha=120, maxColorValue=255)
+mcxs2.rgb   = col2rgb(mcxs2)
+mcxs2.shade1= rgb(mcxs2.rgb[1],mcxs2.rgb[2],mcxs2.rgb[3], alpha=120, maxColorValue=255)
+
+
+# Impulse response functions
+# Forecast Error Variance Decomposition
+############################################################
+B.posterior       = array(NA,c(N,N,S2))
+A.posterior       = array(NA,c(N,K,S2))
+for (s in 1:S2){
+  B               = solve(B0.posterior[,,s])
+  B.posterior[,,s]= B
+  A.posterior[,,s]= B %*% Bp.posterior[,,s]
+}
+
+IRF.posterior     = array(NA,c(N,N,h+1,S2))
+IRF.inf.posterior = array(NA,c(N,N,S2))
+FEVD.posterior    = array(NA,c(N,N,h+1,S2))
+J                 = cbind(diag(N),matrix(0,N,N*(p-1)))
+for (s in 1:S2){
+  A.bold          = rbind(A.posterior[,2:(1+N*p),s],cbind(diag(N*(p-1)),matrix(0,N*(p-1),N)))
+  IRF.inf.posterior[,,s]          = J %*% solve(diag(N*p)-A.bold) %*% t(J) %*% B.posterior[,,s]
+  A.bold.power    = A.bold
+  for (i in 1:(h+1)){
+    if (i==1){
+      IRF.posterior[,,i,s]        = B.posterior[,,s]
+    } else {
+      IRF.posterior[,,i,s]        = J %*% A.bold.power %*% t(J) %*% B.posterior[,,s]
+      A.bold.power                = A.bold.power %*% A.bold
+    }
+  }
+}
+FEVD.posterior    = 100*FEVD.posterior
+
+# plot IRFs and FEVDs
+############################################################
+IRF.posterior.mps = IRF.posterior[,np,,]
+IRFs.k1           = apply(IRF.posterior.mps,1:2,median)
+IRFs.k1           = apply(IRF.posterior.mps,1:2,median)
+IRFs.inf.k1       = apply(IRF.posterior.mps,1,mean)
+rownames(IRFs.k1) = colnames(y)
+
+IRFs.k1.hdi    = apply(IRF.posterior.mps,1:2,hdi, credMass=0.68)
+hh          = 1:(h+1)
+
+pl = par(mfrow=c(4,2), mar=c(4,4.5,2,2),cex.axis=1.5, cex.lab=1.5)
+for (n in 1:N){
+  ylims     = range(IRFs.k1[n,hh],IRFs.k1.hdi[,n,1:6],0)
+  plot(hh,IRFs.k1[n,hh], type="l", ylim=ylims, axes=FALSE, xlab="", ylab=rownames(IRFs.k1)[n])
+  if (n==5 | n==6){
+    axis(1,c(1,13,25,37),c("1 Month","1 year","2 years","3 years"))
+  } else {
+    axis(1,c(1,13,25,37),c("1 Month","1 year","2 years","3 years"))
+  }
+  axis(2,c(ylims[1],0,ylims[2]),round(c(ylims[1],0,ylims[2]),3))
+  polygon(c(hh,(h+1):1), c(IRFs.k1.hdi[1,n,hh],IRFs.k1.hdi[2,n,(h+1):1]), col=mcxs2.shade1,border=mcxs2.shade1)
+  abline(h=0)
+  lines(hh, IRFs.k1[n,hh],lwd=2,col=mcxs1)
+}
+}
+
+```
+
+```{r run both models with data}
+#| echo: false
+#| message: false
+#| warning: false
+#change data 
+y = na.omit(merge(tindp, tcpi,tFF, texpec, tlend, thp , tfci))
+colnames(y)<- c("IP", "CPI","FF", "EXP", "LEND","HP","NFCI")
+y = as.ts(y)
+
+p=12
+Y       = y[(p+1):nrow(y),]
+X       = matrix(1,nrow(Y),1)
+for (i in 1:p){
+  X     = cbind(X,y[((p+1):nrow(y))-i,])
+}
+
+N       = ncol(Y)
+K       = 1+N*p
+
+Y       = t(Y)
+X       = t(X)
+
+
+## setting exclusions and restrictions
+#Exclusions (can be changed to different exclusions then cholesky)
+FF.V           = vector("list",N)
+for (n in 1:N){
+  FF.V[[n]]   = cbind(diag(n),matrix(0,n,N-n))
+}
+
+# The B0.initial is used as an initial matrix used in the Gibbs sampler
+B0.initial = matrix(0,N,N)
+for (n in 1:N){
+  unrestricted    = apply(FF.V[[n]],2,sum)==1
+  B0.initial[n,unrestricted] = rnorm(sum(unrestricted))
+}
+
+# set the priors for basic model
+kappa1  = .1       # Autoregressive slope shrinkage
+kappa2  = 10       # Constant term shrinkage
+kappa0  = 10       # Contemporaneous effects shrinkage
+
+priors  = list(
+  B     = cbind(rep(0,N), diag(N), matrix(0, N, (p-1)*N)),
+  Omega = diag(c(kappa2,kappa1*((1:p)^(-2))%x%rep(1,N))),
+  # Omega = diag(c(kappa2,kappa1*rep(1,N*p))),
+  S     = kappa0*diag(N),
+  nu    = N
+)
+
+base  = Gibbs.sampler.base(p=12,Y=Y,X=X,priors=priors, S1=200,S2=1800, FF.V=FF.V, B0.initial=B0.initial)
+
+# setting priors for extended
+priors   = list(
+  B        = cbind(rep(0,N), diag(N), matrix(0, N, (p-1)*N)),
+  Omega    = diag(c(10,((1:p)^(-2))%x%rep(1,N))),
+  S        = diag(N),
+  nu       = N,
+  S.kappa0  = 1,
+  nu.kappa0 = 1,
+  S.kappa1  = 1,
+  nu.kappa1 = 1
+)
+
+FF.V           = vector("list",N)
+for (n in 1:N){
+  FF.V[[n]]   = cbind(diag(n),matrix(0,n,N-n))
+}
+
+# The B0.initial is used as an initial matrix used in the Gibbs sampler
+B0.initial = matrix(0,N,N)
+for (n in 1:N){
+  unrestricted    = apply(FF.V[[n]],2,sum)==1
+  B0.initial[n,unrestricted] = rnorm(sum(unrestricted))
+}
+
+exten = Gibbs.sampler.extended(p=12,Y=Y,X=X,priors=priors,S1=200,S2=1800, FF.V=FF.V, B0.initial=B0.initial)
+```
+
+## Basic model
+
+The impulse responses for the baseline and extended model are presented
+with confidence bands of one standard deviation being equivalent to the
+68 pct. level of significance. The plots can be found below. 
+
+```{r show IRFs basic}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-irf-basic-plot
+#| fig-cap: "IRFs for basic model" 
+
+irf(B0.posterior=base$B0.posterior.N,Bp.posterior=base$Bp.posterior.N,p=p,h=36,shock = 7)
+
+```
+
+## Extended model
+
+```{r show IRFs extended}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-irf-extended-plot
+#| fig-cap: "IRFs for extended model" 
+
+irf(B0.posterior=exten$B0.posterior.N,Bp.posterior=exten$Bp.posterior.N,p=p,h=36,shock = 7)
+```
+
+We see that following a positive shock to financial conditions, which is
+equivalent to a tightening of financial conditions, the real
+economic variables responds according to the hypothesis presented above.
+As Financial conditions tighten we see that industrial production as
+well as consumer prices decrease. This is what one would expect
+according to economic theory, as the tighter conditions of finance
+should make it harder for firms and consumers to acquire liquidity for
+investments and consumption smoothing: Another possible channel is that
+as financial conditions are tightened consumers expect that the economic
+situation will be worse compared to the current state and thus starts
+increasing their savings, implying a lower demand for goods, affecting
+the industrial production as well as the consumer prices negatively.
+Following the observed movements in the real economic variables the
+central bank responds by lowering the federal funds rate in order to
+stimulate the economy.
+
+Looking at the financial variables we see that the house prices are
+decreasing, which is explained by the tougher financial conditions.
+However, rather surprisingly we see that the initial response of lending
+is positive, after which it decreases substantially. The initial
+response is not what you would expect, as the tighter conditions in the
+financial markets should impact the liquidity market negatively and thus
+decrease the total lending. Nevertheless, this might simply be explained
+by the fact that there is a lag from the tightening until an actual
+implementation. All the responses are significant.
+
+From the plots of the basic and the extended model it is evident, that the overall picture is very similar,
+however, what we gain from estimating the hyper parameters is that the
+confidence bands are significantly narrowed, which implies that we have
+essentially reduced de uncertainty in the model, thus giving us more
+reliable responses.
+
+## Robustness
+
+When applying a recursive structure, it is standard in the literature to
+provide a robustness check, testing whether the empirical results change
+as the structure is changes. Thus, in order to comply with this i
+consider a model where the shock of interest has been placed first, and
+thus
+$Y=\begin{bmatrix}NFCI & IP & CPI & FF & Exp & Lend & HP \end{bmatrix}'$.
+This implies that there is contemporaenous effects from a shock in
+financial coditions onto the real economy. The IRFs can be found below.
+
+```{r run both models with data 2}
+#| echo: false
+#| message: false
+#| warning: false
+#change data 
+y = na.omit(merge(tfci, tindp, tcpi, tFF, texpec, tlend, thp))
+colnames(y)<- c("NFCI","IP", "CPI","FF", "EXP", "LEND","HP")
+y = as.ts(y)
+
+p=12
+Y       = y[(p+1):nrow(y),]
+X       = matrix(1,nrow(Y),1)
+for (i in 1:p){
+  X     = cbind(X,y[((p+1):nrow(y))-i,])
+}
+
+N       = ncol(Y)
+K       = 1+N*p
+
+Y       = t(Y)
+X       = t(X)
+
+
+# setting priors for extended
+priors   = list(
+  B        = cbind(rep(0,N), diag(N), matrix(0, N, (p-1)*N)),
+  Omega    = diag(c(10,((1:p)^(-2))%x%rep(1,N))),
+  S        = diag(N),
+  nu       = N,
+  S.kappa0  = 1,
+  nu.kappa0 = 1,
+  S.kappa1  = 1,
+  nu.kappa1 = 1
+)
+
+FF.V           = vector("list",N)
+for (n in 1:N){
+  FF.V[[n]]   = cbind(diag(n),matrix(0,n,N-n))
+}
+
+# The B0.initial is used as an initial matrix used in the Gibbs sampler
+B0.initial = matrix(0,N,N)
+for (n in 1:N){
+  unrestricted    = apply(FF.V[[n]],2,sum)==1
+  B0.initial[n,unrestricted] = rnorm(sum(unrestricted))
+}
+
+extenrob = Gibbs.sampler.extended(p=12,Y=Y,X=X,priors=priors,S1=200,S2=1800, FF.V=FF.V, B0.initial=B0.initial)
+
+```
+
+```{r show IRFs extendedrob}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-irf-extended-plot-rob
+#| fig-cap: "IRFs Robustness" 
+
+irf(B0.posterior=extenrob$B0.posterior.N,Bp.posterior=extenrob$Bp.posterior.N,p=p,h=36,shock = 1)
+
+```
+
+From the plot it is evident that the long run response of CPI and industrial production is similar to the prior IRFs, however, we see an initial increase, which is in contrast to what economic theory would suggest. Looking at the response of the Federal reserve, we see that the interest rate is now increased. This is different from the prior IRFs where they indicated a reduction. Looking at the consumer expectations we see that they increase, which might be explained by the fact that agents are assuming that tightening stems from an indication of a bright future ahead. The response of house prices and lending are in line with the previous plots.
+
+The different responses of the Federal Reserve might be explained by two possible channels. In the first ordering, the response would be considered a help to the economy, after seeing the economic downturn forced by the tighter financial conditions. In the robust setting, the response would indicate, that the interest rate on treasury bonds, which closely follows the federal funds rate included in the NFCI, has increased. 
+
+**Summing up the empirical investigation**
+
+Summing up, the hypothesis, stating that financial conditions affects
+the real economy cannot be rejected, as we see that it indeed has a
+significant effect, and it is thus very important to policy makers to
+take this into account when doing financial regulation and/or monetary
+policy. Furthermore, changing the order of the variables does not have a
+significant effect on the empirical results regarding the real economic variables. Nevertheless, it does have a significant effect on the response of the Federal Reserve as well as the consumer expectations.
+
 # References {.unnumbered}
-
-Kilian, L., & L¨utkepohl, H. (2017). Structural Vector Autoregressive
-Analysis. Cambridge University Press.
-
-Jenser, J., & Pedersen, J. (2019). Macro financial linkages in a SVAR
-model with application to Denmark, Working paper (no. 134)
-
-Giannone, D., Lenza, M., & Primiceri, G. E. (2019). Priors for the long
-run. Journal of the American Statistical Association, 114 (526),
-565--580
-
-Waggoner, D. F., & Zha, T. (2003). A gibbs sampler for structural vector
-autoregressions. Journal of Economic Dynamics and Control, 28 (2),
-349--366.
-
-Chan, J. C. (2022). Asymmetric conjugate priors for large bayesian vars.
-Quantitative Economics, 13 (3), 1145--1169.
