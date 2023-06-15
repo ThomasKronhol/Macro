@@ -918,7 +918,7 @@ Gibbs.sampler.base <- function(p,Y,X,priors,S1,S2, FF.V, B0.initial){
   kappa1 = 10
   kappa2 = 0.1
 
-    B0.posterior    <- array(NA,c(N,N,(S1+S2)))
+  B0.posterior    <- array(NA,c(N,N,(S1+S2)))
   Bp.posterior    <- array(NA,c(N,(1+N*p),(S1+S2)))
 
   for (s in 1:(S1+S2)){
@@ -1437,11 +1437,11 @@ priors  = list(
 base  = Gibbs.sampler.base(p=12,Y=Y,X=X,priors=priors, S1=200,S2=1800, FF.V=FF.V, B0.initial=B0.initial)
 
 # setting priors for extended
-priors   = list(
-  B        = cbind(rep(0,N), diag(N), matrix(0, N, (p-1)*N)),
-  Omega    = diag(c(10,((1:p)^(-2))%x%rep(1,N))),
-  S        = diag(N),
-  nu       = N,
+priors    = list(
+  B         = cbind(rep(0,N), diag(N), matrix(0, N, (p-1)*N)),
+  Omega     = diag(c(10,((1:p)^(-2))%x%rep(1,N))),
+  S         = diag(N),
+  nu        = N,
   S.kappa0  = 1,
   nu.kappa0 = 1,
   S.kappa1  = 1,
