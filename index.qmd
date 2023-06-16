@@ -27,8 +27,8 @@ project intends to quantify the effects of a tightening of the financial
 conditions on the real economy.
 
 The objective question to be answered can thus be summarized as follows;
-Does a tightening of the financial conditions have the anticipated
-effects on the real economy, and if so, what are the magnitudes?
+Does a tightening of the financial conditions have the anticipated significant
+effect on the real economy in terms of sign and magnitude?
 
 **What motivates this?**
 
@@ -55,6 +55,8 @@ and liquidity while including the shadow banking system. The analysis is
 somewhat inspired by @JensenandRoager2019, who finds that easing
 financial conditions had a positive impact on the Danish economy using
 quarterly data.
+
+
 
 ## Data and its properties
 
@@ -440,13 +442,7 @@ analysis, given that the shocks to stationary processes can be
 considered temporary, while shocks to I(1)-processes can be considered
 permanent given that random walk processes has a high degree of memory
 from past shocks. Thus, as the variables are I(1)-processes, all shocks
-can be considered permanent. Given the properties of the time series
-multiple priors are available. First of all, following the literature,
-using a Normal-Wishart prior could be sufficient in getting some
-reliable estimates of the shocks. However, one could also use a
-dummy-prior, enabling the econometrician to examine the joint dynamics
-of the time series aforementioned in the long run. This could be done by
-following the work of @giannone2019priors.
+can be considered permanent.
 
 ## Econometric model and hypothesis
 
@@ -480,14 +476,10 @@ case, that we impose $K(K-1)/2$ restrictions. In this research paper a
 cholesky decompostion will be applied. This implies a recursive
 identification which imposes the $B_0^{-1}$ to be lower triangular. In
 general the ordering of the variables in $y_t$ must be justified using
-economic theory. Nevertheless this research paper follows the ordering
-introduced in @JensenandRoager2019, where the variables are ordered from
-slow to fast moving, thus financial variables will be ordered in the
-last, while real output and inflation will be ordered first. This might
-be economically justified by the fact that, even though the variables
-are all monthly, the impact of the financial variables to the real
-economy might take one period, thus no contemporaneous effects can be
-expected.
+economic theory. Nevertheless, this research paper follows the ordering
+introduced in @JensenandRoager2019, and will be further elaborated in
+the section **Empirical results**.
+
 
 **How to use the structural model and proposed output**
 
@@ -513,6 +505,7 @@ variance decomposition, and given that there at some point in the
 observed period might have been some kind of paradigm shift, using a
 historical decomposition can be used to see if the explanatory power of
 the financial conditions onto economic variables have changed over time.
+However, this will not be applied in this paper.
 
 ## Estimation procedure and model extensions
 
@@ -974,7 +967,7 @@ Gibbs.sampler.base <- function(p,Y,X,priors,S1,S2, FF.V, B0.initial){
 #| message: false
 #| warning: false
 # Run Basic function
-Basics = Gibbs.sampler.base(p=1,Y=Y.sim,X=X.sim,priors=priors,S1=200,S2=1800, FF.V=FF.V, B0.initial=B0.initial)
+Basics = Gibbs.sampler.base(p=1,Y=Y.sim,X=X.sim,priors=priors,S1=500,S2=2500, FF.V=FF.V, B0.initial=B0.initial)
 "B_0"
 round(apply(Basics$B0.posterior.N, 1:2, mean),3)
 "B_+"
@@ -1188,7 +1181,7 @@ Gibbs.sampler.extended <- function(p,Y,X,priors,S1,S2, FF.V, B0.initial){
   
     B0.posteror.N.tmp      =  normalize.Gibbs.output.parallel(B0.posterior,B0.hat=B0.hat)
   for (s in 1:S2){
-    B0.posterior.N[,,s]    = B0.posteror.N.tmp[,,1]
+    B0.posterior.N[,,s]    = B0.posteror.N.tmp[,,s]
     Bp.posterior.N[,,s]    = B0.posterior.N[,,s]%*%solve(B0.posterior[,,s])%*%Bp.posterior[,,s]
   }
   
@@ -1204,7 +1197,7 @@ Gibbs.sampler.extended <- function(p,Y,X,priors,S1,S2, FF.V, B0.initial){
 #| message: false
 #| warning: false
 # Run Basic function
-extended = Gibbs.sampler.extended(p=1,Y=Y.sim,X=X.sim,priors=priors,S1=200,S2=1800, FF.V=FF.V, B0.initial=B0.initial)
+extended = Gibbs.sampler.extended(p=1,Y=Y.sim,X=X.sim,priors=priors,S1=500,S2=2500, FF.V=FF.V, B0.initial=B0.initial)
 ```
 
 ```{r extended dontshow}
@@ -1232,8 +1225,8 @@ $\kappa_+$ which is relatively small. Additionally, in order to check
 the convergence of the model, the estimated parameters in the diagonal
 of the matrix $B_+$ is plotted against the number of draws. We see that
 the convergence is complete, as the graph should can be considered white
-noise. The estimations are computed using 2000 draws, where 200 of the
-first observations are discarded. The low number of draws is due to the computational power required. 
+noise. The estimations are computed using 500 number of observations and 3000 draws, where 500 of the first observations are discarded. The low number of draws is due to the
+computational power required.
 
 ```{r showing converge plot}
 #| echo: false
@@ -1248,6 +1241,85 @@ plot(extended$Bp.posterior.N[,4,][3,],type='l',col="#CC66CC",ylab="",xlab="",mai
 ```
 
 ## Empirical results
+
+```{r run both models with data}
+#| echo: false
+#| message: false
+#| warning: false
+#change data 
+y = na.omit(merge(tindp, tcpi,tFF, texpec, tlend, thp , tfci))
+colnames(y)<- c("IP", "CPI","FF", "EXP", "LEND","HP","NFCI")
+y = as.ts(y)
+
+p=12
+Y       = y[(p+1):nrow(y),]
+X       = matrix(1,nrow(Y),1)
+for (i in 1:p){
+  X     = cbind(X,y[((p+1):nrow(y))-i,])
+}
+
+N       = ncol(Y)
+K       = 1+N*p
+
+Y       = t(Y)
+X       = t(X)
+
+
+## setting exclusions and restrictions
+#Exclusions (can be changed to different exclusions then cholesky)
+FF.V           = vector("list",N)
+for (n in 1:N){
+  FF.V[[n]]   = cbind(diag(n),matrix(0,n,N-n))
+}
+
+# The B0.initial is used as an initial matrix used in the Gibbs sampler
+B0.initial = matrix(0,N,N)
+for (n in 1:N){
+  unrestricted    = apply(FF.V[[n]],2,sum)==1
+  B0.initial[n,unrestricted] = rnorm(sum(unrestricted))
+}
+
+# set the priors for basic model
+kappa1  = .1       # Autoregressive slope shrinkage
+kappa2  = 10       # Constant term shrinkage
+kappa0  = 10       # Contemporaneous effects shrinkage
+
+priors  = list(
+  B     = cbind(rep(0,N), diag(N), matrix(0, N, (p-1)*N)),
+  Omega = diag(c(kappa2,kappa1*((1:p)^(-2))%x%rep(1,N))),
+  # Omega = diag(c(kappa2,kappa1*rep(1,N*p))),
+  S     = kappa0*diag(N),
+  nu    = N
+)
+
+base  = Gibbs.sampler.base(p=12,Y=Y,X=X,priors=priors, S1=500,S2=2500, FF.V=FF.V, B0.initial=B0.initial)
+
+# setting priors for extended
+priors   = list(
+  B        = cbind(rep(0,N), diag(N), matrix(0, N, (p-1)*N)),
+  Omega    = diag(c(10,((1:p)^(-2))%x%rep(1,N))),
+  S        = diag(N),
+  nu       = N,
+  S.kappa0  = 1,
+  nu.kappa0 = 1,
+  S.kappa1  = 1,
+  nu.kappa1 = 1
+)
+
+FF.V           = vector("list",N)
+for (n in 1:N){
+  FF.V[[n]]   = cbind(diag(n),matrix(0,n,N-n))
+}
+
+# The B0.initial is used as an initial matrix used in the Gibbs sampler
+B0.initial = matrix(0,N,N)
+for (n in 1:N){
+  unrestricted    = apply(FF.V[[n]],2,sum)==1
+  B0.initial[n,unrestricted] = rnorm(sum(unrestricted))
+}
+
+exten = Gibbs.sampler.extended(p=12,Y=Y,X=X,priors=priors,S1=500,S2=2500, FF.V=FF.V, B0.initial=B0.initial)
+```
 
 **Identification**
 
@@ -1285,12 +1357,111 @@ as one might expect the other variables such as expectations, rates and
 house prices might need some time to adjust according to the new
 information.
 
+**Baseline model**
+
+The results from the baseline model can be found below where some chosen
+results are reported.
+
+```{r base sdmean}
+#| echo: false
+#| message: false
+#| warning: false
+# Run extended function
+"B_0 mean"
+round(apply(base$B0.posterior.N, 1:2, mean),3)
+"B_0 standard deviations"
+round(apply(base$B0.posterior.N, 1:2, sd),3)
+```
+
+Looking at the convergence for $B_+$, we see that the estimation is
+consistent.
+
+```{r showing converge plot base}
+#| echo: false
+#| message: false
+#| warning: false
+# Plotting convergence baseline
+par(mfrow=c(3,1))
+plot(base$Bp.posterior.N[,2,][1,],type='l',col="#660099",ylab="",xlab="",main=expression(B[+12]), lwd = 0.1)
+plot(base$Bp.posterior.N[,3,][2,],type='l',col="#CC66CC",ylab="",xlab="",main=expression(B[+23]), lwd = 0.1)
+plot(base$Bp.posterior.N[,4,][3,],type='l',col="#CC66CC",ylab="",xlab="",main=expression(B[+34]), lwd = 0.1)
+
+```
+
+Looking at the histograms we can get an idea of how the parameters is
+distributed:
+
+```{r showing histogram plot base}
+#| echo: false
+#| message: false
+#| warning: false
+# Plotting convergence extended
+par(mfrow=c(2,2), mar=c(4,4.5,2,2),cex.axis=1.5, cex.lab=1.5)
+hist(base$Bp.posterior.N[,2,][1,], main=expression(B[+12]),xlab="", ylab="", col="magenta",breaks=50)
+hist(base$Bp.posterior.N[,3,][2,], main=expression(B[+23]),xlab="", ylab="", col="magenta",breaks=50)
+hist(base$Bp.posterior.N[,1,][1,], main=expression(B[0.11]),xlab="", ylab="", col="magenta",breaks=50)
+hist(base$Bp.posterior.N[,7,][3,], main=expression(B[0.37]),xlab="", ylab="", col="magenta",breaks=50)
+```
+
+**Extended model**
+
+As for the baseline model i report the estimated matrices and the
+standard deviation of $B_0$:
+
+```{r extended noget andet}
+#| echo: false
+#| message: false
+#| warning: false
+# Run extended function
+"B_0 mean"
+round(apply(exten$B0.posterior.N, 1:2, mean),3)
+"B_0 standard deviations"
+round(apply(exten$B0.posterior.N, 1:2, sd),4)
+"Kappa_0"
+mean(exten$kappa0)
+"Kappa_+"
+mean(exten$kappa1)
+```
+
+Looking at the convergence for $B_+$, we see that the estimation is
+consistent. As already mentioned for the artificial data $\kappa_0$ is
+generally estimated to be large, which is also the case here. As
+aforementioned, this is in line with the literature.
+
+```{r showing converge plot ext}
+#| echo: false
+#| message: false
+#| warning: false
+# Plotting convergence extended
+par(mfrow=c(3,1))
+plot(exten$Bp.posterior.N[,2,][1,],type='l',col="#660099",ylab="",xlab="",main=expression(B[+12]), lwd = 0.1)
+plot(exten$Bp.posterior.N[,3,][2,],type='l',col="#CC66CC",ylab="",xlab="",main=expression(B[+23]), lwd = 0.1)
+plot(exten$Bp.posterior.N[,4,][3,],type='l',col="#CC66CC",ylab="",xlab="",main=expression(B[+34]), lwd = 0.1)
+
+```
+
+As for the baseline model, looking at the histograms we can get an idea
+of how the parameters is distributed:
+
+```{r showing histogram plot ext}
+#| echo: false
+#| message: false
+#| warning: false
+# Plotting convergence extended
+par(mfrow=c(2,2), mar=c(4,4.5,2,2),cex.axis=1.5, cex.lab=1.5)
+hist(exten$Bp.posterior.N[,2,][1,], main=expression(B[+12]),xlab="", ylab="", col="magenta",breaks=50)
+hist(exten$Bp.posterior.N[,3,][2,], main=expression(B[+23]),xlab="", ylab="", col="magenta",breaks=50)
+hist(exten$Bp.posterior.N[,1,][1,], main=expression(B[0.11]),xlab="", ylab="", col="magenta",breaks=50)
+hist(exten$Bp.posterior.N[,7,][3,], main=expression(B[0.37]),xlab="", ylab="", col="magenta",breaks=50)
+```
+
 **Impulse Response Functions**
 
 Starting from a general VAR we know that we can write it in its Vector
-Moving Average respresentation (VMA) assuming that the stationarity conditions is fulfilled. Furthermore, introducing the
-matrix $J=\left[I_n\quad 0_{N\times N(p-1)}\right]$, and that we
-consider a structural model, the model can expressed as follows:
+Moving Average respresentation (VMA) assuming that the stationarity
+conditions is fulfilled. Furthermore, introducing the matrix
+$J=\left[I_n\quad 0_{N\times N(p-1)}\right]$, and that we consider a
+structural model, the model can expressed as follows:
 
 ```{=tex}
 \begin{align}
@@ -1298,8 +1469,8 @@ y_t &=Bu_t+J\textbf{A}J'Bu_{t-1}+J\textbf{A}^2J'Bu_{t-2}+...\\
 &=\Theta_0u_t+\Theta_1u_{t-1}+\Theta_2u_{t-2}+...\\
 \end{align}
 ```
-where $\frac{\partial y_{t+i}}{\partial u_t}=\Theta_i=\theta_iB$ is the IRF. The
-IRFs are computed using the following function:
+where $\frac{\partial y_{t+i}}{\partial u_t}=\Theta_i$ is the structural
+IRFs. The IRFs are computed using the following function:
 
 ```{r computing IRFs}
 irf <- function(p,B0.posterior,Bp.posterior,h,shock){
@@ -1384,90 +1555,11 @@ for (n in 1:N){
 
 ```
 
-```{r run both models with data}
-#| echo: false
-#| message: false
-#| warning: false
-#change data 
-y = na.omit(merge(tindp, tcpi,tFF, texpec, tlend, thp , tfci))
-colnames(y)<- c("IP", "CPI","FF", "EXP", "LEND","HP","NFCI")
-y = as.ts(y)
-
-p=12
-Y       = y[(p+1):nrow(y),]
-X       = matrix(1,nrow(Y),1)
-for (i in 1:p){
-  X     = cbind(X,y[((p+1):nrow(y))-i,])
-}
-
-N       = ncol(Y)
-K       = 1+N*p
-
-Y       = t(Y)
-X       = t(X)
-
-
-## setting exclusions and restrictions
-#Exclusions (can be changed to different exclusions then cholesky)
-FF.V           = vector("list",N)
-for (n in 1:N){
-  FF.V[[n]]   = cbind(diag(n),matrix(0,n,N-n))
-}
-
-# The B0.initial is used as an initial matrix used in the Gibbs sampler
-B0.initial = matrix(0,N,N)
-for (n in 1:N){
-  unrestricted    = apply(FF.V[[n]],2,sum)==1
-  B0.initial[n,unrestricted] = rnorm(sum(unrestricted))
-}
-
-# set the priors for basic model
-kappa1  = .1       # Autoregressive slope shrinkage
-kappa2  = 10       # Constant term shrinkage
-kappa0  = 10       # Contemporaneous effects shrinkage
-
-priors  = list(
-  B     = cbind(rep(0,N), diag(N), matrix(0, N, (p-1)*N)),
-  Omega = diag(c(kappa2,kappa1*((1:p)^(-2))%x%rep(1,N))),
-  # Omega = diag(c(kappa2,kappa1*rep(1,N*p))),
-  S     = kappa0*diag(N),
-  nu    = N
-)
-
-base  = Gibbs.sampler.base(p=12,Y=Y,X=X,priors=priors, S1=200,S2=1800, FF.V=FF.V, B0.initial=B0.initial)
-
-# setting priors for extended
-priors   = list(
-  B        = cbind(rep(0,N), diag(N), matrix(0, N, (p-1)*N)),
-  Omega    = diag(c(10,((1:p)^(-2))%x%rep(1,N))),
-  S        = diag(N),
-  nu       = N,
-  S.kappa0  = 1,
-  nu.kappa0 = 1,
-  S.kappa1  = 1,
-  nu.kappa1 = 1
-)
-
-FF.V           = vector("list",N)
-for (n in 1:N){
-  FF.V[[n]]   = cbind(diag(n),matrix(0,n,N-n))
-}
-
-# The B0.initial is used as an initial matrix used in the Gibbs sampler
-B0.initial = matrix(0,N,N)
-for (n in 1:N){
-  unrestricted    = apply(FF.V[[n]],2,sum)==1
-  B0.initial[n,unrestricted] = rnorm(sum(unrestricted))
-}
-
-exten = Gibbs.sampler.extended(p=12,Y=Y,X=X,priors=priors,S1=200,S2=1800, FF.V=FF.V, B0.initial=B0.initial)
-```
-
 ## Basic model
 
-The impulse responses for the baseline and extended model are presented
-with confidence bands of one standard deviation being equivalent to the
-68 pct. level of significance. The plots can be found below. 
+The impulse responses for the baseline are presented with confidence
+bands of one standard deviation being equivalent to the 68 pct. level of
+significance. The plots can be found below.
 
 ```{r show IRFs basic}
 #| echo: false
@@ -1482,6 +1574,11 @@ irf(B0.posterior=base$B0.posterior.N,Bp.posterior=base$Bp.posterior.N,p=p,h=36,s
 
 ## Extended model
 
+The impulse responses for extended model are as for the baseline model
+presented with confidence bands of one standard deviation being
+equivalent to the 68 pct. level of significance. The plots can be found
+below.
+
 ```{r show IRFs extended}
 #| echo: false
 #| message: false
@@ -1493,17 +1590,17 @@ irf(B0.posterior=exten$B0.posterior.N,Bp.posterior=exten$Bp.posterior.N,p=p,h=36
 ```
 
 We see that following a positive shock to financial conditions, which is
-equivalent to a tightening of financial conditions, the real
-economic variables responds according to the hypothesis presented above.
-As Financial conditions tighten we see that industrial production as
-well as consumer prices decrease. This is what one would expect
-according to economic theory, as the tighter conditions of finance
-should make it harder for firms and consumers to acquire liquidity for
-investments and consumption smoothing: Another possible channel is that
-as financial conditions are tightened consumers expect that the economic
-situation will be worse compared to the current state and thus starts
-increasing their savings, implying a lower demand for goods, affecting
-the industrial production as well as the consumer prices negatively.
+equivalent to a tightening of financial conditions, the real economic
+variables responds according to the hypothesis presented above. As
+Financial conditions tighten we see that industrial production as well
+as consumer prices decrease. This is what one would expect according to
+economic theory, as the tighter conditions of finance should make it
+harder for firms and consumers to acquire liquidity for investments and
+consumption smoothing: Another possible channel is that as financial
+conditions are tightened consumers expect that the economic situation
+will be worse compared to the current state and thus starts increasing
+their savings, implying a lower demand for goods, affecting the
+industrial production as well as the consumer prices negatively.
 Following the observed movements in the real economic variables the
 central bank responds by lowering the federal funds rate in order to
 stimulate the economy.
@@ -1518,11 +1615,11 @@ decrease the total lending. Nevertheless, this might simply be explained
 by the fact that there is a lag from the tightening until an actual
 implementation. All the responses are significant.
 
-From the plots of the basic and the extended model it is evident, that the overall picture is very similar,
-however, what we gain from estimating the hyper parameters is that the
-confidence bands are significantly narrowed, which implies that we have
-essentially reduced de uncertainty in the model, thus giving us more
-reliable responses.
+From the plots of the basic and the extended model it is evident, that
+the overall picture is very similar, however, what we gain from
+estimating the hyper parameters is that the confidence bands are
+significantly narrowed, which implies that we have essentially reduced
+de uncertainty in the model, thus giving us more reliable responses.
 
 ## Robustness
 
@@ -1582,7 +1679,7 @@ for (n in 1:N){
   B0.initial[n,unrestricted] = rnorm(sum(unrestricted))
 }
 
-extenrob = Gibbs.sampler.extended(p=12,Y=Y,X=X,priors=priors,S1=200,S2=1800, FF.V=FF.V, B0.initial=B0.initial)
+extenrob = Gibbs.sampler.extended(p=12,Y=Y,X=X,priors=priors,S1=500,S2=2500, FF.V=FF.V, B0.initial=B0.initial)
 
 ```
 
@@ -1597,9 +1694,24 @@ irf(B0.posterior=extenrob$B0.posterior.N,Bp.posterior=extenrob$Bp.posterior.N,p=
 
 ```
 
-From the plot it is evident that the long run response of CPI and industrial production is similar to the prior IRFs, however, we see an initial increase, which is in contrast to what economic theory would suggest. Looking at the response of the Federal reserve, we see that the interest rate is now increased. This is different from the prior IRFs where they indicated a reduction. Looking at the consumer expectations we see that they increase, which might be explained by the fact that agents are assuming that tightening stems from an indication of a bright future ahead. The response of house prices and lending are in line with the previous plots.
+From the plot it is evident that the long run response of CPI and
+industrial production is similar to the prior IRFs, however, we see an
+initial increase, which is in contrast to what economic theory would
+suggest. Looking at the response of the Federal reserve, we see that the
+interest rate is now increased. This is different from the prior IRFs
+where they indicated a reduction. Looking at the consumer expectations
+we see that they increase, which might be explained by the fact that
+agents are assuming that tightening stems from an indication of a bright
+future ahead. The response of house prices and lending are in line with
+the previous plots.
 
-The different responses of the Federal Reserve might be explained by two possible channels. In the first ordering, the response would be considered a help to the economy, after seeing the economic downturn forced by the tighter financial conditions. In the robust setting, the response would indicate, that the interest rate on treasury bonds, which closely follows the federal funds rate included in the NFCI, has increased. 
+The different responses of the Federal Reserve might be explained by two
+possible channels. In the first ordering, the response would be
+considered a help to the economy, after seeing the economic downturn
+forced by the tighter financial conditions. In the robust setting, the
+response would indicate, that the interest rate on treasury bonds, which
+closely follows the federal funds rate included in the NFCI, has
+increased.
 
 **Summing up the empirical investigation**
 
@@ -1608,6 +1720,466 @@ the real economy cannot be rejected, as we see that it indeed has a
 significant effect, and it is thus very important to policy makers to
 take this into account when doing financial regulation and/or monetary
 policy. Furthermore, changing the order of the variables does not have a
-significant effect on the empirical results regarding the real economic variables. Nevertheless, it does have a significant effect on the response of the Federal Reserve as well as the consumer expectations.
+significant effect on the empirical results regarding the real economic
+variables. Nevertheless, it does have a significant effect on the
+response of the Federal Reserve as well as the consumer expectations.
+
+## Extending the extended model with a t-distribution
+
+One way to improve the model and potentially narrow the confidence bands
+is by allowing the model to follow a t-distribution.
+
+Following the literature, we have that the unconditional distribution of
+$u_{n.t}\sim \mathcal{N}(0,1)$ where $u_{n.t}$ is the structural shock
+for the $n^{th}$ row. If we instead consider the conditional
+distribution with the structural error term conditioned on
+$\lambda_n \sim \mathcal{IG}2(\underline{s}_{\lambda},\underline{\nu}_{\lambda})$ we have that
+$u_{n.t}|\lambda \sim \mathcal{N}(0,\lambda)$. Now, looking at the PDF
+of $u_{n.t}$ we can now write this as:
+
+```{=tex}
+\begin{align}
+p(u_{n.t}) &= \int p(u_{n.t}|\lambda_n)p(\lambda_n)d\lambda_n \\
+& = \mathcal{t}(0,\underline{s},\underline{\nu})
+\end{align}
+```
+
+As our error terms now follows a t-distribution the likelihood function has to be rewritten in order to determine how this affects the posterior distributions. The Likelihood function thus becomes: 
+```{=tex}
+\begin{align}
+L(B_+,B_0 | Y, X) \propto |\det(B_0)|^T|\det(\lambda I_t)|^N \exp \left\{-\frac{1}{2} \sum_{n=1}^N (b_nV_nY-B_nX)(\lambda I_t)^{-1}(b_nV_nY-B_nX)'  \right\}
+\end{align}
+```
+
+And by following the same steps as presented above we can write the posterior distribution as follows: 
+
+```{=tex}
+\begin{align}
+p(B_+,B_0|Y,X) &\sim \mathcal{NGN}(\bar{B},\bar{\Omega},\bar{S},\bar{\nu})\\
+\bar{\Omega}&=\left[X(\lambda I_t)^{-1}X'+\underline{\Omega}^{-1}\right]^{-1}\\
+\bar{B}&=\left[Y(\lambda I_t)^{-1}X'+\underline{B\Omega}^{-1}\right]\bar{\Omega}\\
+\bar{S}&=\left[Y(\lambda I_t)^{-1}Y'+\underline{S}^{-1}+\underline{B\Omega}^{-1}\underline{B}'-\bar{B}\bar{\Omega}^{-1}\bar{B}'\right]^{-1}\\
+\bar{\nu}&= T+\underline{\nu}
+\end{align}
+```
+
+Now determining the posterior distribution of $\lambda$ we have that 
+
+```{=tex}
+\begin{align}
+p(B_+,B_0|Y,X) &\propto L(B_+,B_0|Y,X)p(B_+,B_0|\lambda)p(\lambda)\\
+\end{align}
+```
+
+Now finding an expression for the Full-conditional posterior of
+$\lambda$, we can write this as:
+
+```{=tex}
+\begin{align}
+p(\lambda|Y,X,B_0,B_+) &\propto p(B_+|B_0,\lambda)p(\lambda)\\
+&\propto |\det(\Omega)|^T|\det(\lambda I_t)|^N \exp \left\{-\frac{1}{2} \sum_{n=1}^N (B_n-b_nV_n\underline{B})(\lambda I_T)^{-1}\underline{\Omega}^{-1}(B_n-b_nV_n\underline{B})'\right\}\lambda^{-\frac{\underline{\nu}_{\lambda}+2}{2}}\exp \left\{  -\frac{1}{2} \frac{\underline{s}_{\lambda}}{\lambda}\right\}
+\end{align}
+```
+
+Following the aforementioned arguments and steps, the posterior parameters can be
+expressed as:
+
+```{=tex}
+\begin{align}
+p(\lambda|Y,X,B_0,B_+) &\propto \lambda^{-\frac{\bar{\nu}_{\lambda}+2}{2}} \exp \left\{ -\frac{1}{2}\frac{\bar{s}_{\lambda}}{\lambda} \right\}\\
+\bar{s}_{\lambda} &= \underline{s}_{\lambda}+\sum_{n=1}^N (B_n-b_nV_n\underline{B})\underline{\Omega}^{-1}(B_n-b_nV_n\underline{B})'\\
+\bar{\nu}_{\lambda} &= \underline{\nu}_{\lambda}+NT
+\end{align}
+```
+
+The priors for the t-distribution enhanced model is thus given by: 
+
+```{r new priors}
+#| echo: true
+#| message: false
+#| warning: false
+
+### Setting new priors
+priors   = list(
+  B        = cbind(rep(0,N), diag(N), matrix(0, N, (p-1)*N)),
+  Omega    = diag(c(10,((1:p)^(-2))%x%rep(1,N))),
+  S        = diag(N),
+  nu       = N,
+  S.kappa0  = 1,
+  nu.kappa0 = 1,
+  S.kappa1  = 1,
+  nu.kappa1 = 1, 
+  s.lambda = 1, 
+  nu.lambda = 4
+)
+
+```
+
+The code, incorporating the t-distribution with respect to the new prioes can be found below:
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+
+Gibbs.sampler.extended.t <- function(p,Y,X,priors,S1,S2, FF.V, B0.initial,lambda.draw){
+#
+  N       = nrow(Y)
+  p       = p # calculate from X and Y (K and N)
+  K       = 1+N*p
+  S1      = S1 # S1
+  S2      = S2 #S2
+
+  kappa0          <- rep(NA, S1 + S2)
+  kappa1          <- rep(NA, S1 + S2)
+  B0.posterior    <- array(NA,c(N,N,(S1+S2)))
+  Bp.posterior    <- array(NA,c(N,(1+N*p),(S1+S2)))
+  lambda          <- rep(NA, S1 + S2)
+  
+#  lambda[1] <- priors$lambda.draw
+  kappa0[1] <- 1
+  kappa1[1] <- 1
+  
+  for (s in 1:(S1+S2)){
+    # Computing posterior parameters
+    # Only Omega, B and S depend on kappa1
+
+    if (s==1) {
+      B0.s = B0.initial
+      lambda = lambda.draw 
+    } else {
+      B0.s = B0.posterior[,,s-1]
+      lambda[s]=lambda[s]
+    }  
+
+    Omega.inv      = solve(priors$Omega)
+    Omega.post.inv = (1/lambda[s])*X%*%t(X) + (1/kappa1[s])*Omega.inv
+    Omega.post     = solve(Omega.post.inv)
+    B.post         = ((1/lambda[s])*Y%*%t(X) + priors$B%*%((1/kappa1[s])*Omega.inv)) %*% Omega.post
+    S.post         = (1/lambda[s])*Y%*%t(Y) + (1/kappa0[s])*solve(priors$S) + priors$B%*%((1/kappa1[s])*Omega.inv)%*%t(priors$B) - B.post%*%Omega.post.inv%*%t(B.post)
+    nu.post        = ncol(Y) + priors$nu
+
+    # sampling one draw B0 from the posterior distribution using Gibbs  
+    # rgn.function samples from a random conditional generalized normal distribution
+    
+    B0.tmp                  = rgn(n=1, S.inv=S.post, nu=nu.post, V=FF.V, B0.initial=B0.s)
+    B0.posterior[,,s]       = B0.tmp[,,1]
+    
+    # sample one draw B+ from the normal conditional posterior
+    Bp.tmp              = rnorm.ngn(B0.tmp, B=B.post,Omega=Omega.post)
+    Bp.posterior[,,s]   = Bp.tmp[,,1]
+    
+    #compute posterior for the shrinkage parameter S.kappa and nu
+    S.kappa0.post = priors$S.kappa0 + sum(B0.posterior[,,s]^2)
+    
+    # S.kappa.post = sum(priors$S.kappa + (B0.posterior[i,,s]-priors$B[i,])%*%Omega.inv%*%t(B0.posterior[i,,s]-priors$B[i,]))
+    
+    # nu.kappa0.post  = priors$nu.kappa0 + i #change outside of loop count number rows (otherwise make as a sum of i's)
+    nu.kappa0.post  = priors$nu.kappa0 + sum(unlist(lapply(FF.V, nrow)))
+    
+    S.kappa1.post   = priors$S.kappa1
+    for (i in 1:N){
+      S.kappa1.post = S.kappa1.post + (Bp.posterior[i,,s]- B0.posterior[i,,s]%*%priors$B)%*%Omega.inv%*%t(Bp.posterior[i,,s]-B0.posterior[i,,s]%*%priors$B)
+    }
+    # S.kappa.post = sum(priors$S.kappa + (B0.posterior[i,,s]-priors$B[i,])%*%Omega.inv%*%t(B0.posterior[i,,s]-priors$B[i,]))
+    
+    nu.kappa1.post  = priors$nu.kappa1 + N*(p*N+1) 
+    
+    #### LAMBDA
+    
+    S.lambda.post   = priors$s.lambda
+    for (i in 1:N){
+      S.lambda.post = S.lambda.post + (Bp.posterior[i,,s]- B0.posterior[i,,s]%*%priors$B)%*%Omega.inv%*%t(Bp.posterior[i,,s]-B0.posterior[i,,s]%*%priors$B)
+    }
+    
+    nu.lambda.post  = priors$nu.lambda + N*ncol(Y) 
+    
+    ### LAMBDA
+    
+    #Draw kappa0, kappa1 and lambda from IG2
+    if (s != S1+S2) {
+      kappa0[s+1]    = S.kappa0.post / rchisq(1, df=nu.kappa0.post) 
+      kappa1[s+1]    = S.kappa1.post / rchisq(1, df=nu.kappa1.post)
+      lambda[s+1]    = S.lambda.post / rchisq(1, df=nu.lambda.post)
+    }
+  }
+  
+  #Discard first S1 draws
+  
+  B0.posterior <- B0.posterior[,,(S1+1):(S1+S2)]
+  Bp.posterior <- Bp.posterior[,,(S1+1):(S1+S2)]
+  kappa0       <- kappa0[(S1+1):(S1+S2)]
+  kappa1       <- kappa1[(S1+1):(S1+S2)]
+  lambda       <- lambda[(S1+1):(S1+S2)]
+  
+  #normalisation of B0.posterior and Bp.posterior
+  
+  B0.hat             = diag(sign(diag(B0.tmp[,,1]))) %*% B0.tmp[,,1]
+  # t(chol((nu.post-N)*S.post))# normalisation using this B0.hat should work
+  
+  B0.posterior.N    <- array(NA,c(N,N,S2))
+  Bp.posterior.N    <- array(NA,c(N,(1+N*p),S2))
+  
+  B0.posteror.N.tmp      =  normalize.Gibbs.output.parallel(B0.posterior,B0.hat=B0.hat)
+  for (s in 1:S2){
+    B0.posterior.N[,,s]    = B0.posteror.N.tmp[,,s]
+    B0.posterior.N[,,s]    = B0.posterior.N[,,s]/sqrt(lambda[s]) 
+    Bp.posterior.N[,,s]    = B0.posterior.N[,,s]%*%solve(B0.posterior[,,s])%*%Bp.posterior[,,s]
+  }
+  
+  return(list(B0.posterior.N = B0.posterior.N,
+              Bp.posterior.N = Bp.posterior.N,
+              Omega.post = Omega.post, 
+              kappa0 = kappa0,
+              kappa1 = kappa1,
+              lambda = lambda))
+}
+```
+
+```{r run ext with artdata}
+#| echo: false
+#| message: false
+#| warning: false
+#change data 
+T       = 500
+N       = 3
+p       = 1
+K       = 1 + N * p
+
+y.sim       = apply(matrix(rnorm(T * N), ncol = N), 2, cumsum)
+
+# create Y and X
+############################################################
+Y.sim       = y.sim[(p+1):nrow(y.sim),]
+X.sim       = matrix(1,nrow(Y.sim),1)
+for (i in 1:p){
+  X.sim     = cbind(X.sim,y.sim[((p+1):nrow(y.sim))-i,])
+}
+Y.sim       = t(Y.sim)
+X.sim       = t(X.sim)
+
+#Exclusions (can be changed to different exclusions then cholesky) 
+FF.V           = vector("list",N)
+for (n in 1:N){
+  FF.V[[n]]   = cbind(diag(n),matrix(0,n,N-n))
+}
+
+# The B0.initial is used as an initial matrix used in the Gibbs sampler
+B0.initial = matrix(0,N,N)
+for (n in 1:N){
+  unrestricted    = apply(FF.V[[n]],2,sum)==1
+  B0.initial[n,unrestricted] = rnorm(sum(unrestricted))
+}
+
+
+priors   = list(
+  B        = cbind(rep(0,N), diag(N), matrix(0, N, (p-1)*N)),
+  Omega    = diag(c(10,((1:p)^(-2))%x%rep(1,N))),
+  S        = diag(N),
+  nu       = N,
+  S.kappa0  = 1,
+  nu.kappa0 = 1,
+  S.kappa1  = 1,
+  nu.kappa1 = 1, 
+  s.lambda = 1, 
+  nu.lambda = 4
+)
+
+#Initial draw for lambda
+lambda.draw = priors$s.lambda/rchisq(1, priors$nu.lambda)
+
+```
+
+```{r extendedext show}
+#| echo: false
+#| message: false
+#| warning: false
+# Run Basic function
+extended_tdis = Gibbs.sampler.extended.t(p=1,Y=Y.sim,X=X.sim,priors=priors,S1=500,S2=2500, FF.V=FF.V, B0.initial=B0.initial,lambda.draw=lambda.draw)
+```
+
+In order to check whether the model is coded correctly I check the code
+using the aforementioned artificial data. Now, that the t-distribution
+has been introduced in the model, the variance should no longer be an
+identity matrix, which is why we consider
+$\tilde{B_0}=B_0\lambda^{-\frac{1}{2}}$. From the matrices found below we see that they are close to the matrices found for the baseline and extended model. 
+
+```{r extended.t dontshow2}
+#| echo: false
+#| message: false
+#| warning: false
+# Run extended function
+"B_0"
+round(apply(extended_tdis$B0.posterior.N, 1:2, mean),3)
+"B_+"
+round(apply(extended_tdis$Bp.posterior.N, 1:2, mean),3)
+"Kappa_0"
+mean(extended_tdis$kappa0)
+"Kappa_+"
+mean(extended_tdis$kappa1)
+"Lambda"
+mean(extended_tdis$lambda)
+```
+
+Looking at the convergence of lambda we see that it converges. 
+
+```{r showing converge plot2}
+#| echo: false
+#| message: false
+#| warning: false
+# Plotting convergence
+plot.ts(as.matrix(extended_tdis$lambda),type='l',col="#660099",ylab="",xlab="",main=expression(lambda), lwd = 0.1)
+
+```
+
+Running the model with data we have the following outcome, where we see that the mean and standard deviations as well as the estimation of the hyper parameters and lambda are all sensible: 
+
+```{r run ext with realdata}
+#| echo: false
+#| message: false
+#| warning: false
+#change data 
+y = na.omit(merge(tindp, tcpi,tFF, texpec, tlend, thp , tfci))
+colnames(y)<- c("IP", "CPI","FF", "EXP", "LEND","HP","NFCI")
+y = as.ts(y)
+
+p=12
+Y       = y[(p+1):nrow(y),]
+X       = matrix(1,nrow(Y),1)
+for (i in 1:p){
+  X     = cbind(X,y[((p+1):nrow(y))-i,])
+}
+
+N       = ncol(Y)
+K       = 1+N*p
+
+Y       = t(Y)
+X       = t(X)
+
+#Exclusions (can be changed to different exclusions then cholesky) 
+FF.V           = vector("list",N)
+for (n in 1:N){
+  FF.V[[n]]   = cbind(diag(n),matrix(0,n,N-n))
+}
+
+# The B0.initial is used as an initial matrix used in the Gibbs sampler
+B0.initial = matrix(0,N,N)
+for (n in 1:N){
+  unrestricted    = apply(FF.V[[n]],2,sum)==1
+  B0.initial[n,unrestricted] = rnorm(sum(unrestricted))
+}
+
+
+priors   = list(
+  B        = cbind(rep(0,N), diag(N), matrix(0, N, (p-1)*N)),
+  Omega    = diag(c(10,((1:p)^(-2))%x%rep(1,N))),
+  S        = diag(N),
+  nu       = N,
+  S.kappa0  = 1,
+  nu.kappa0 = 1,
+  S.kappa1  = 1,
+  nu.kappa1 = 1, 
+  s.lambda = 1, 
+  nu.lambda = 4
+)
+
+#Initial draw for lambda
+lambda.draw = priors$s.lambda/rchisq(1, priors$nu.lambda)
+
+```
+
+
+```{r extendedext dataaa show}
+#| echo: false
+#| message: false
+#| warning: false
+# Run Basic function
+extended_tdis = Gibbs.sampler.extended.t(p=12,Y=Y,X=X,priors=priors,S1=500,S2=2500, FF.V=FF.V, B0.initial=B0.initial,lambda.draw=lambda.draw)
+```
+
+```{r extended.t dontshow4}
+#| echo: false
+#| message: false
+#| warning: false
+# Run extended function
+"B_0"
+round(apply(extended_tdis$B0.posterior.N, 1:2, mean),3)
+"B_0 standard deviations"
+round(apply(extended_tdis$B0.posterior.N, 1:2, sd),4)
+"Kappa_0"
+mean(extended_tdis$kappa0)
+"Kappa_+"
+mean(extended_tdis$kappa1)
+"Lambda"
+mean(extended_tdis$lambda)
+```
+
+Looking at the convergence plots we see that the model seems to converge: 
+
+```{r showing converge plot extt}
+#| echo: false
+#| message: false
+#| warning: false
+# Plotting convergence t-distribution
+par(mfrow=c(3,1))
+plot(extended_tdis$Bp.posterior.N[,2,][1,],type='l',col="#660099",ylab="",xlab="",main=expression(B[+12]), lwd = 0.1)
+plot(extended_tdis$Bp.posterior.N[,3,][2,],type='l',col="#CC66CC",ylab="",xlab="",main=expression(B[+23]), lwd = 0.1)
+plot(extended_tdis$Bp.posterior.N[,4,][3,],type='l',col="#CC66CC",ylab="",xlab="",main=expression(B[+34]), lwd = 0.1)
+
+```
+
+As for the baseline model, looking at the histograms we can get an idea
+of how the parameters is distributed:
+
+```{r showing histogram plot extt}
+#| echo: false
+#| message: false
+#| warning: false
+# Plotting convergence t-distribution
+par(mfrow=c(2,2), mar=c(4,4.5,2,2),cex.axis=1.5, cex.lab=1.5)
+hist(extended_tdis$Bp.posterior.N[,2,][1,], main=expression(B[+12]),xlab="", ylab="", col="magenta",breaks=50)
+hist(extended_tdis$Bp.posterior.N[,3,][2,], main=expression(B[+23]),xlab="", ylab="", col="magenta",breaks=50)
+hist(extended_tdis$Bp.posterior.N[,1,][1,], main=expression(B[0.11]),xlab="", ylab="", col="magenta",breaks=50)
+hist(extended_tdis$Bp.posterior.N[,7,][3,], main=expression(B[0.37]),xlab="", ylab="", col="magenta",breaks=50)
+```
+
+Looking at the convergence of lambda we see that it converges as well. 
+
+```{r showing converge plot22}
+#| echo: false
+#| message: false
+#| warning: false
+# Plotting convergence
+plot.ts(as.matrix(extended_tdis$lambda),type='l',col="#660099",ylab="",xlab="",main=expression(lambda), lwd = 0.1)
+
+```
+
+In the graph below the IRFs are plotted.
+
+```{r show IRFs extendedtdis}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-irf-extended-plot-tdist
+#| fig-cap: "IRFs t-distribution" 
+
+irf(B0.posterior=extended_tdis$B0.posterior.N,Bp.posterior=extended_tdis$Bp.posterior.N,p=p,h=36,shock = 7)
+
+```
+
+The story of the the shape of the impulse responses are similar to the aforementioned, however, we see that the confidence bands are significantly narrowed, implying that the estimation has been improved. 
+
+## Conclusion
+
+In his paper I examine how a tightening of financial conditions affect
+the real economy. The subject is of importance for policy makers
+interested in knowing how tighter conditions in financial markets
+affects economic variables such as industrial production and consumer
+prices. The empirical results indicate that there is a significant negative
+response, to the real economic variables, as they experience a
+tightening in financial conditions in the magnitude of one standard
+deviation, and thus implies that we are not able to reject the hypothesis that financial variables affect the real economic variables significantly. Looking at the technical part of the paper it indicates that estimating the hyper parameters significantly narrows the confidence
+bands of the IRFs. Furthermore, enhancing the model with t-distributed errors seems to affect the estimation positively, as the confidence bands are narrowed. 
+
 
 # References {.unnumbered}
